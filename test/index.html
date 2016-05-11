@@ -1,5 +1,15 @@
 <html>
 <head>
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 10px;
+        }
+
+        li {
+            display: inline;
+        }
+    </style>
 </head>
 <title>Test</title>
 <body ng-app="app">
@@ -10,7 +20,6 @@
 
 <div ng-controller="expressionsCtrl">
     <div eb-node="model.node">
-        Unnecessary text
     </div>
 </div>
 
@@ -33,7 +42,8 @@
                   $templateCache) {
 
             $templateCache.put('label', '<label>{{expression.text}}</label>');
-            $templateCache.put('input', '<input ng-model="expression.value"></input>');
+            $templateCache.put('input', '<input ng-model="expression.value" />');
+            $templateCache.put('list', '<select ng-model="expression.selected"><option ng-repeat="option in expression.options">{{option}}</option></select>');
 
             $scope.model = {
                 node: new BuilderNode()
@@ -49,6 +59,12 @@
                 this.value = value;
             };
 
+            var List = function (selected) {
+                BuilderExpression.call(this, 'list');
+                this.selected = selected;
+                this.options = [];
+            };
+
             $scope.model.builder = new ExpressionBuilder([
                 {
                     constructor: Label,
@@ -59,12 +75,21 @@
                     constructor: Input,
                     property: 'input',
                     templateUrl: 'input'
+                },
+                {
+                    constructor: List,
+                    property: 'list',
+                    templateUrl: 'list'
                 }
             ]);
 
             $scope.model.builder
                     .label('#label', {text: 'Test label'})
                     .input('#input', {value: 'Text input'})
+                    .list('#list', {options: [1, 2, 3]})
+                    .node({}, function (builder) {
+                        builder.label('#newNode', {text: 'Other Node'});
+                    })
                     .apply($scope.model.node);
         }]);
 </script>

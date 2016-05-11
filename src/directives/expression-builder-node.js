@@ -9,12 +9,10 @@
         return {
             restrict: 'A',
             scope: {
-                node: '=ebNode',
-                builder: '=builder'
+                node: '=ebNode'
             },
             templateUrl: 'expression-builder.node.html',
             link: function (scope, element, attr) {
-                console.log('NB NODE');
             }
         }
     }
