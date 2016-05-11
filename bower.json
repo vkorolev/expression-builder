@@ -1,0 +1,24 @@
+{
+  "name": "expression-builder",
+  "homepage": "https://github.com/korolyovvalentin/expression-builder",
+  "authors": [
+    "Valentin Korolev <kor.val@inbox.ru>",
+    "Dmitry Sitnov <dimitry.sitnov@gmail.com>"
+  ],
+  "description": "Simple framework for declarative building markup",
+  "main": "index.js",
+  "keywords": [
+    "angular",
+    "recursive structure",
+    "repeater"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
