@@ -1,7 +1,7 @@
 (function (angular, undefined) {
     
     angular.module('expression-builder')
-        .factory('expressionBuilder', Factory);
+        .factory('ExpressionBuilder', Factory);
     
     Factory.$inject = [];
     
@@ -12,10 +12,10 @@
     function ExpressionBuilder (expressions) {
         function Builder () {
             this.plan = [];
-        };
+        }
         
         Builder.prototype.apply = function (node) {
-            plan.forEach(function (p) {
+            this.plan.forEach(function (p) {
                 p(node); 
             });
         };
@@ -23,9 +23,10 @@
         expressions.forEach(function (expression) {
             Builder.prototype[expression.property] = function (id, parameters) {
                 var build = function (node, context) {
-                    var expression = Object.create(expression.prototype);
+                    var model = new expression.constructor();
                     angular.extend(model, parameters);
-                    node.add(model);
+                    model.template = expression.templateUrl;
+                    node.expressions.push(model);
                 };             
                 
                 this.plan.push(build);

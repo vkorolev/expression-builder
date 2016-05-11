@@ -7,13 +7,14 @@
     
     function Directive () {
         return {
-            restrict: 'E',
+            restrict: 'A',
             scope: {
-                node: '=ebNode'
+                node: '=ebNode',
+                builder: '=builder'
             },
-            template: '',
+            templateUrl: 'expression-builder.node.html',
             link: function (scope, element, attr) {
-                
+                console.log('NB NODE');
             }
         }
     }

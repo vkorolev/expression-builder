@@ -1,0 +1,73 @@
+<html>
+<head>
+</head>
+<title>Test</title>
+<body ng-app="app">
+
+<h1>
+    Test Expression Builder
+</h1>
+
+<div ng-controller="expressionsCtrl">
+    <div eb-node="model.node">
+        Unnecessary text
+    </div>
+</div>
+
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../dist/scripts.js"></script>
+<script src="../dist/templates.js"></script>
+
+<script language="javascript">
+    var app = angular.module('app', ['expression-builder']);
+    app.controller('expressionsCtrl', [
+        'BuilderNode',
+        'BuilderExpression',
+        'ExpressionBuilder',
+        '$scope',
+        '$templateCache',
+        function (BuilderNode,
+                  BuilderExpression,
+                  ExpressionBuilder,
+                  $scope,
+                  $templateCache) {
+
+            $templateCache.put('label', '<label>{{expression.text}}</label>');
+            $templateCache.put('input', '<input ng-model="expression.value"></input>');
+
+            $scope.model = {
+                node: new BuilderNode()
+            };
+
+            var Label = function (text) {
+                BuilderExpression.call(this, 'label');
+                this.text = text;
+            };
+
+            var Input = function (value) {
+                BuilderExpression.call(this, 'input');
+                this.value = value;
+            };
+
+            $scope.model.builder = new ExpressionBuilder([
+                {
+                    constructor: Label,
+                    property: 'label',
+                    templateUrl: 'label'
+                },
+                {
+                    constructor: Input,
+                    property: 'input',
+                    templateUrl: 'input'
+                }
+            ]);
+
+            $scope.model.builder
+                    .label('#label', {text: 'Test label'})
+                    .input('#input', {value: 'Text input'})
+                    .apply($scope.model.node);
+        }]);
+</script>
+
+</body>
+</html>
