@@ -1,36 +1,40 @@
 (function (angular, undefined) {
     
     angular.module('expression-builder')
-        .provider('expressionBuilder', ExpressionBuilderProvider);
+        .factory('expressionBuilder', Factory);
     
-    ExpressionBuilderProvider.$inject = [];
-        
-	function ExpressionBuilderProvider () {
-		var templates = [];
-
-		return {
-			register: function (type, property, template) {
-				Builder.prototype[property] = function () {
-                    
-                    Object.create(type, {
-                        
-                    });
-                }
-			},
-			$get: function () {
-				return Builder;
-			}
-		}
-	}
+    Factory.$inject = [];
     
-    function Builder () {
-        this.plan = [];
+    function Factory () {
+        return ExpressionBuilder;
     }
     
-    Builder.prototype.apply = function (node) {
-        this.plan.forEach(function (p) {
-             p(node);
+    function ExpressionBuilder (expressions) {
+        function Builder () {
+            this.plan = [];
+        };
+        
+        Builder.prototype.apply = function (node) {
+            plan.forEach(function (p) {
+                p(node); 
+            });
+        };
+        
+        expressions.forEach(function (expression) {
+            Builder.prototype[expression.property] = function (id, parameters) {
+                var build = function (node, context) {
+                    var expression = Object.create(expression.prototype);
+                    angular.extend(model, parameters);
+                    node.add(model);
+                };             
+                
+                this.plan.push(build);
+                
+                return this;
+            };
         });
-    };
+        
+        return new Builder();
+    }
     
 })(angular);
