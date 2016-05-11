@@ -1,58 +1,79 @@
 (function (angular, undefined) {
-    
-    angular.module('expression-builder')
-        .factory('ExpressionBuilder', Factory);
-    
-    Factory.$inject = ['BuilderNode'];
-    
-    function Factory (BuilderNode) {
-        return ExpressionBuilder;
 
-        function ExpressionBuilder (expressions) {
-            function Builder () {
-                this.plan = [];
-                this.context = {};
-            }
+	angular.module('expression-builder')
+		.factory('ExpressionBuilder', Factory);
 
-            Builder.prototype.apply = function (node) {
-                this.plan.forEach(function (p) {
-                    p(node);
-                });
-            };
+	Factory.$inject = ['BuilderNode', 'ExpressionBuilderContext'];
 
-            Builder.prototype.node = function (parameters, build) {
-                var buildNode = function (node, context) {
-                    var nextNode = new BuilderNode();
+	function Factory(BuilderNode, Context) {
+		return ExpressionBuilder;
 
-                    var builder = new Builder(expressions);
-                    build(builder);
-                    builder.apply(nextNode);
+		function ExpressionBuilder(expressions) {
+			function Builder() {
+				this.plan = [];
+				this.context = new Context();
+			}
 
-                    node.children.push(nextNode);
-                };
+			Builder.prototype.apply = function (node) {
+				var context = new Context(this, node);
 
-                this.plan.push(buildNode);
+				this.plan.forEach(function (p) {
+					p(node, context);
+				});
+			};
 
-                return this;
-            };
+			Builder.prototype.node = function (parameters, build) {
+				var buildNode = function (node, context) {
+					var newNode = new BuilderNode();
 
-            expressions.forEach(function (expression) {
-                Builder.prototype[expression.property] = function (id, parameters) {
-                    var build = function (node, context) {
-                        var model = new expression.constructor();
-                        angular.extend(model, parameters);
-                        model.template = expression.templateUrl;
-                        node.expressions.push(model);
-                    };
+					var builder = new Builder(expressions);
+					build(builder);
+					builder.apply(newNode);
 
-                    this.plan.push(build);
+					newNode.remove = function () {
+						var index = node.children.indexOf(newNode);
+						node.children.splice(index, 1);
+					};
 
-                    return this;
-                };
-            });
+					node.children.push(newNode);
+				};
 
-            return new Builder();
-        }
-    }
+				this.plan.push(buildNode);
+
+				return this;
+			};
+
+			expressions.forEach(function (settings) {
+				Builder.prototype[settings.property] = function (id, parameters) {
+					var build = function (node, context) {
+						var expression = new settings.constructor();
+						angular.extend(expression, parameters);
+						expression.template = settings.templateUrl;
+						node.expressions.push(expression);
+
+						var keys = Object.keys(expression);
+
+						for (var i = 0, length = keys.length; i < length; i++) {
+							var key = keys[i];
+							if (angular.isFunction(expression[key])) {
+                                var sourceFunction = expression[key];
+								expression[key] = function () {
+									sourceFunction.apply(expression, [context].concat(arguments));
+								};
+							}
+						}
+
+						context[id] = expression;
+					};
+
+					this.plan.push(build);
+
+					return this;
+				};
+			});
+
+			return new Builder();
+		}
+	}
 
 })(angular);
