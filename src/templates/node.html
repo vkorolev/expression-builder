@@ -1,0 +1,8 @@
+<ul class="expression-builder-node">
+    <li ng-repeat="expression in node.expressions" class="expression-builder-expression">
+        <div ng-include="expression.template"></div>
+    </li>
+    
+    <li ng-repeat="child in node.children" condition-builder="child" class="expression-builder-child">
+    </li>    
+</ul>
