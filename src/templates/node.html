@@ -3,6 +3,6 @@
         <div ng-include="expression.template"></div>
     </li>
     
-    <li ng-repeat="child in node.children" condition-builder="child" class="expression-builder-child">
-    </li>    
+    <li ng-repeat="child in node.children" eb-node="child" class="expression-builder-child">
+    </li>
 </ul>
