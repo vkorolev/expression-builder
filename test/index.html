@@ -78,22 +78,22 @@
 
             $scope.model.builder = new ExpressionBuilder([
                 {
-                    constructor: Label,
+                    type: Label,
                     property: 'label',
                     templateUrl: 'label'
                 },
                 {
-                    constructor: Input,
+                    type: Input,
                     property: 'input',
                     templateUrl: 'input'
                 },
                 {
-                    constructor: List,
+                    type: List,
                     property: 'list',
                     templateUrl: 'list'
                 },
                 {
-                    constructor: Button,
+                    type: Button,
                     property: 'button',
                     templateUrl: 'button'
                 }
@@ -126,7 +126,7 @@
                                     change: function (ctx) {
                                         switch (this.selected.toLowerCase()) {
                                             case 'equals':
-                                                ctx.apply('#operand', function (builder) {
+                                                ctx.replace('#operand', function (builder) {
                                                     builder.list('#equals', {
                                                         placeholder: 'PH',
                                                         change: function (ctx) {
@@ -138,7 +138,7 @@
                                                 });
                                                 break;
                                             case 'between':
-                                                ctx.apply('#operand', function (builder) {
+                                                ctx.replace('#operand', function (builder) {
                                                     builder
                                                             .list('#from', {
                                                                 placeholder: 'PH1',

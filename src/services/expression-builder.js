@@ -3,9 +3,9 @@
 	angular.module('expression-builder')
 		.factory('ExpressionBuilder', Factory);
 
-	Factory.$inject = ['BuilderNode', 'BuilderGroup', 'ExpressionBuilderContext'];
+	Factory.$inject = ['BuilderNode', 'BuilderGroup'];
 
-	function Factory(BuilderNode, BuilderGroup, Context) {
+	function Factory(BuilderNode, BuilderGroup) {
 		return ExpressionBuilder;
 
 		function ExpressionBuilder(expressions) {
@@ -36,6 +36,30 @@
 			function GroupBuilder() {
 				this.plan = [];
 				this.children = [];
+			}
+
+			function Context (builder, node) {
+				this.add = function (child) {
+					node.children.push(child);
+				};
+
+				this.create = function (build) {
+
+				};
+
+				this.clone = function () {
+					var newNode = new BuilderNode();
+					builder.apply(newNode);
+
+					return newNode;
+				};
+
+				this.remove = function () {
+					node.remove();
+				};
+
+				this.replace = function (id, build) {
+				};
 			}
 
 			GroupBuilder.prototype.apply = function (node) {
@@ -125,7 +149,9 @@
 					var self = this;
 
 					var build = function (node, context) {
-						var expression = angular.extend(new settings.constructor(), parameters);
+						var patch = new Patch(node, context, self);
+
+						var expression = angular.extend(new settings.type(), parameters);
 						expression.template = settings.templateUrl;
 						expression.parent = node;
 						node.expressions.push(expression);
@@ -136,10 +162,10 @@
 							var key = keys[i];
 
 							if (angular.isFunction(expression[key])) {
-								patchWithContext(expression, key, context);
+								patch.context(expression, key);
 							}
 							if (expression.unholdOn && expression.unholdOn.indexOf(key) > -1) {
-								patchUnhold(expression, key, node, context);
+								patch.unhold(expression, key, node, context);
 							}
 						}
 
@@ -148,39 +174,11 @@
 								return true;
 							};
 						}
-						patchVisibility(expression, node, context);
+						patch.visibility(expression);
 
 						context[id] = expression;
 
 						return node;
-					};
-
-					var patchWithContext = function (expression, key, context) {
-						var sourceFunction = expression[key];
-
-						expression[key] = function () {
-							return sourceFunction.apply(expression, [context].concat(arguments));
-						};
-					};
-
-					var patchUnhold = function (expression, key, node, context) {
-						var sourceFunction = expression[key];
-						expression[key] = function () {
-							if (node.placeholder) {
-								self.unhold(node, context);
-							}
-							expression[key] = sourceFunction;
-
-							return sourceFunction.apply(self, arguments);
-						};
-					};
-
-					var patchVisibility = function (expression, node, context) {
-						var sourceFunction = expression.isVisible;
-
-						expression.isVisible = function () {
-							return (!node.placeholder || expression.placeholder !== false) && sourceFunction.apply(expression, [context]);
-						};
 					};
 
 					this.plan.push(build);
@@ -193,6 +191,36 @@
 			});
 
 			return new Builder();
+		}
+
+		function Patch(node, context, self) {
+			this.context = function (expression, key) {
+				var sourceFunction = expression[key];
+
+				expression[key] = function () {
+					return sourceFunction.apply(expression, [context].concat(arguments));
+				};
+			};
+
+			this.unhold = function (expression, key) {
+				var sourceFunction = expression[key];
+				expression[key] = function () {
+					if (node.placeholder) {
+						self.unhold(node, context);
+					}
+					expression[key] = sourceFunction;
+
+					return sourceFunction.apply(self, arguments);
+				};
+			};
+
+			this.visibility = function (expression) {
+				var sourceFunction = expression.isVisible;
+
+				expression.isVisible = function () {
+					return (!node.placeholder || expression.placeholder !== false) && sourceFunction.apply(expression, [context]);
+				};
+			};
 		}
 	}
 
