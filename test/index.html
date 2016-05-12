@@ -6,6 +6,10 @@
             padding: 10px;
         }
 
+        ul.expression-builder-group {
+            list-style-type: none;
+        }
+
         li {
             display: inline;
         }
@@ -43,7 +47,7 @@
 
             $templateCache.put('label', '<label>{{expression.text}}</label>');
             $templateCache.put('input', '<input ng-model="expression.value" ng-change="expression.input($event);"/>');
-            $templateCache.put('list', '<select ng-model="expression.selected"><option ng-repeat="option in expression.options">{{option}}</option></select>');
+            $templateCache.put('list', '<select ng-model="expression.selected" ng-change="expression.change()"><option ng-repeat="option in expression.options">{{option}}</option></select>');
             $templateCache.put('button', '<button ng-click="expression.click($event)">{{expression.text}}</button>');
 
             $scope.model = {
@@ -112,18 +116,59 @@
                                         console.log(ctx['#input'].value);
                                     }
                                 })
+                                .group('#group', function (builder) {
+                                    builder.label('#groupLabel1', {text: 'Group Label 1'})
+                                            .label('#groupLabel2', {text: 'Group Label 2'});
+                                })
                                 .list('#list', {
-                                    options: [1, 2, 3],
+                                    options: ['IN', 'BETWEEN', 'EQUALS'],
+                                    selected: 'EQUALS',
                                     change: function (ctx) {
-
+                                        switch (this.selected.toLowerCase()) {
+                                            case 'equals':
+                                                ctx.apply('#operand', function (builder) {
+                                                    builder.list('#equals', {
+                                                        placeholder: 'PH',
+                                                        change: function (ctx) {
+                                                            console.log('EQUALS IS SELECTED: ' + this.value);
+                                                        },
+                                                        options: ['ONE', 'TWO', 'THREE'],
+                                                        selected: 'Some text'
+                                                    });
+                                                });
+                                                break;
+                                            case 'between':
+                                                ctx.apply('#operand', function (builder) {
+                                                    builder
+                                                            .list('#from', {
+                                                                placeholder: 'PH1',
+                                                                change: function (ctx) {
+                                                                    console.log('FROM : ' + this.value);
+                                                                },
+                                                                options: [1, 2, 3],
+                                                                selected: 1
+                                                            })
+                                                            .label('#and', {text: 'AND'})
+                                                            .list('#to', {
+                                                                placeholder: 'PH1',
+                                                                change: function (ctx) {
+                                                                    console.log('TO: ' + this.value);
+                                                                },
+                                                                options: [1, 2, 3],
+                                                                selected: 2
+                                                            });
+                                                });
+                                                break;
+                                        }
+                                        console.log('CHANGE: ' + this.selected);
                                     }
                                 })
                                 .button('#btn', {
-                                    text: 'add',
+                                    text: 'Remove',
+                                    placeholder: false,
                                     unholdOn: ['click'],
                                     click: function (ctx) {
-//                                        var clone = ctx.clone();
-//                                        ctx.add(clone);
+                                        ctx.remove();
                                         console.log('Click!');
                                     }
                                 })

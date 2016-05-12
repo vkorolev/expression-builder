@@ -3,9 +3,9 @@
 	angular.module('expression-builder')
 		.factory('ExpressionBuilder', Factory);
 
-	Factory.$inject = ['BuilderNode', 'ExpressionBuilderContext'];
+	Factory.$inject = ['BuilderNode', 'BuilderGroup', 'ExpressionBuilderContext'];
 
-	function Factory(BuilderNode, Context) {
+	function Factory(BuilderNode, BuilderGroup, Context) {
 		return ExpressionBuilder;
 
 		function ExpressionBuilder(expressions) {
@@ -32,6 +32,37 @@
 					node.parent.children.splice(index + 1, 0, newPlaceholder);
 				}
 			}
+
+			function GroupBuilder() {
+				this.plan = [];
+				this.children = [];
+			}
+
+			GroupBuilder.prototype.apply = function (node) {
+				var fakeNode = angular.copy(node);
+				fakeNode.expressions = [];
+				fakeNode.children = [];
+
+				var groupExpression = new BuilderGroup();
+				var context = new Context();
+
+				this.plan.forEach(function (p) {
+					p(fakeNode, context);
+				});
+
+				fakeNode.expressions.forEach(function (expression) {
+					groupExpression.expressions.push(expression);
+					expression.parent = groupExpression;
+					expression.remove = function () {
+						var index = groupExpression.expressions.indexOf(expression);
+						groupExpression.expressions.splice(index, 1);
+					};
+				});
+
+				fakeNode.expressions = [];
+
+				node.expressions.push(groupExpression);
+			};
 
 			Builder.prototype.apply = function (node) {
 				var context = new Context(this, node);
@@ -73,8 +104,24 @@
 				return this;
 			};
 
+			Builder.prototype.group = function (id, build) {
+				var buildGroup = function (node, context) {
+					var builder = new GroupBuilder();
+					build(builder);
+					builder.apply(node);
+
+					context[id] = node.expressions[node.expressions.length - 1];
+
+					return node;
+				};
+
+				this.plan.push(buildGroup);
+
+				return this;
+			};
+
 			expressions.forEach(function (settings) {
-				Builder.prototype[settings.property] = function (id, parameters) {
+				var factory = function (id, parameters) {
 					var self = this;
 
 					var build = function (node, context) {
@@ -140,6 +187,9 @@
 
 					return this;
 				};
+
+				Builder.prototype[settings.property] = factory;
+				GroupBuilder.prototype[settings.property] = factory;
 			});
 
 			return new Builder();

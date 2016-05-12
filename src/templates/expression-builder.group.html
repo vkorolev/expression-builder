@@ -1,0 +1,7 @@
+<ul class="expression-builder-group">
+    <li ng-repeat="exp in expression.expressions"
+        ng-if="exp.isVisible()"
+        eb-expression="exp"
+        class="expression-builder-expression">
+    </li>
+</ul>
