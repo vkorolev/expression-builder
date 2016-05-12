@@ -12,5 +12,6 @@
 	function Node () {
 		this.expressions = [];
 		this.children = [];
+		this.placeholder = false;
 	}
 })(angular);

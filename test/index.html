@@ -42,7 +42,7 @@
                   $templateCache) {
 
             $templateCache.put('label', '<label>{{expression.text}}</label>');
-            $templateCache.put('input', '<input ng-model="expression.value" />');
+            $templateCache.put('input', '<input ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list', '<select ng-model="expression.selected"><option ng-repeat="option in expression.options">{{option}}</option></select>');
             $templateCache.put('button', '<button ng-click="expression.click($event)">{{expression.text}}</button>');
 
@@ -96,21 +96,28 @@
             ]);
 
             $scope.model
-                    .builder.node({}, function (builder) {
+                    .builder.node({id: '#upperPlaceholder'}, function (builder) {
                         builder
                                 .label('#label', {text: 'Test label'})
-                                .input('#input', {value: 'Text input'})
+                                .input('#input', {
+                                    value: 'Text input',
+                                    unholdOn: 'input',
+                                    input: function (ctx) {
+                                        console.log(ctx['#input'].value);
+                                    }
+                                })
                                 .list('#list', {options: [1, 2, 3]})
                                 .button('#btn', {
                                     text: 'add',
+                                    unholdOn: ['click'],
                                     click: function (ctx) {
-                                        var clone = ctx.clone();
-                                        ctx.add(clone);
+//                                        var clone = ctx.clone();
+//                                        ctx.add(clone);
                                         console.log('Click!');
                                     }
                                 })
                     })
-                    .node({}, function (builder) {
+                    .node({id: '#otherNode'}, function (builder) {
                         builder.label('#newNode', {text: 'Other Node'});
                     })
                     .apply($scope.model.node);
