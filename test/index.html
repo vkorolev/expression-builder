@@ -96,17 +96,28 @@
             ]);
 
             $scope.model
-                    .builder.node({id: '#upperPlaceholder'}, function (builder) {
+                    .builder.node({
+                        id: '#upperPlaceholder',
+                        placeholder: true
+                    }, function (builder) {
                         builder
                                 .label('#label', {text: 'Test label'})
                                 .input('#input', {
                                     value: 'Text input',
                                     unholdOn: 'input',
+                                    isVisible: function (ctx) {
+                                        return this.value.length < 20;
+                                    },
                                     input: function (ctx) {
                                         console.log(ctx['#input'].value);
                                     }
                                 })
-                                .list('#list', {options: [1, 2, 3]})
+                                .list('#list', {
+                                    options: [1, 2, 3],
+                                    change: function (ctx) {
+
+                                    }
+                                })
                                 .button('#btn', {
                                     text: 'add',
                                     unholdOn: ['click'],

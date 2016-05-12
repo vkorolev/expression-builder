@@ -50,7 +50,7 @@
 				var self = this;
 
 				var buildNode = function (node, context) {
-					var newNode = new BuilderNode();
+					var newNode = angular.extend(new BuilderNode(), parameters);
 
 					var builder = new Builder(expressions);
 					build(builder);
@@ -78,8 +78,7 @@
 					var self = this;
 
 					var build = function (node, context) {
-						var expression = new settings.constructor();
-						angular.extend(expression, parameters);
+						var expression = angular.extend(new settings.constructor(), parameters);
 						expression.template = settings.templateUrl;
 						expression.parent = node;
 						node.expressions.push(expression);
@@ -88,34 +87,52 @@
 
 						for (var i = 0, length = keys.length; i < length; i++) {
 							var key = keys[i];
+
 							if (angular.isFunction(expression[key])) {
-								intercept(expression, key, context);
+								patchWithContext(expression, key, context);
 							}
 							if (expression.unholdOn && expression.unholdOn.indexOf(key) > -1) {
-								unholdInterceptor(expression, key, node, context);
+								patchUnhold(expression, key, node, context);
 							}
 						}
+
+						if (!angular.isFunction(expression.isVisible)) {
+							expression.isVisible = function () {
+								return true;
+							};
+						}
+						patchVisibility(expression, node, context);
 
 						context[id] = expression;
 
 						return node;
 					};
 
-					var unholdInterceptor = function (expression, key, node, context) {
+					var patchWithContext = function (expression, key, context) {
 						var sourceFunction = expression[key];
-						// TODO: add if expressoin.parent.placeholder
+
 						expression[key] = function () {
-							self.unhold(node, context);
-							sourceFunction.apply(self, arguments);
-							expression[key] = sourceFunction;
-						}
+							return sourceFunction.apply(expression, [context].concat(arguments));
+						};
 					};
 
-					var intercept = function (object, key, context) {
-						var sourceFunction = object[key];
+					var patchUnhold = function (expression, key, node, context) {
+						var sourceFunction = expression[key];
+						expression[key] = function () {
+							if (node.placeholder) {
+								self.unhold(node, context);
+							}
+							expression[key] = sourceFunction;
 
-						object[key] = function () {
-							sourceFunction.apply(self, [context].concat(arguments));
+							return sourceFunction.apply(self, arguments);
+						};
+					};
+
+					var patchVisibility = function (expression, node, context) {
+						var sourceFunction = expression.isVisible;
+
+						expression.isVisible = function () {
+							return (!node.placeholder || expression.placeholder !== false) && sourceFunction.apply(expression, [context]);
 						};
 					};
 
