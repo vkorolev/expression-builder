@@ -11,6 +11,7 @@
 
 	function Expression (type) {
 		this.type = type;
+		this.classes = [];
 	}
 
 })(angular);

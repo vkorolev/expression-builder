@@ -1,4 +1,4 @@
-<ul class="expression-builder-node">
+<ul class="expression-builder-node" ng-class="{ placeholder: node.placeholder }">
     <li ng-repeat="expression in node.expressions"
         ng-if="expression.isVisible()"
         eb-expression="expression"

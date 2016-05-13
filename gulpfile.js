@@ -17,6 +17,12 @@ gulp.task('concat', function () {
 		.pipe(gulp.dest('./dist'));
 });
 
+gulp.task('concat:release', function () {
+	return gulp.src(['dist/scripts.js', 'dist/templates.js'])
+		.pipe(concat('expression-builder.js'))
+		.pipe(gulp.dest('./dist'));
+});
+
 gulp.task('testserver', function () {
 	gulp.src('test')
 		.pipe(server({
@@ -25,6 +31,10 @@ gulp.task('testserver', function () {
 			directoryListing: false,
 			open: true
 		}));
+});
+
+gulp.task('release', function () {
+	gulp.run('concat', 'templates', 'concat:release');
 });
 
 gulp.task('default', function () {
