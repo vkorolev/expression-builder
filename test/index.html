@@ -8,6 +8,7 @@
 
         ul.expression-builder-group {
             list-style-type: none;
+            display: inline;
         }
 
         li {
@@ -116,13 +117,14 @@
                                         console.log(ctx['#input'].value);
                                     }
                                 })
-                                .group('#group', function (builder) {
-                                    builder.label('#groupLabel1', {text: 'Group Label 1'})
-                                            .label('#groupLabel2', {text: 'Group Label 2'});
-                                })
+//                                .group('#group', function (builder) {
+//                                    builder.label('#groupLabel1', {text: 'Group Label 1'})
+//                                            .label('#groupLabel2', {text: 'Group Label 2'});
+//                                })
                                 .list('#list', {
                                     options: ['IN', 'BETWEEN', 'EQUALS'],
                                     selected: 'EQUALS',
+                                    unholdOn: ['change'],
                                     change: function (ctx) {
                                         switch (this.selected.toLowerCase()) {
                                             case 'equals':
@@ -130,7 +132,7 @@
                                                     builder.list('#equals', {
                                                         placeholder: 'PH',
                                                         change: function (ctx) {
-                                                            console.log('EQUALS IS SELECTED: ' + this.value);
+                                                            console.log('EQUALS IS SELECTED: ' + this.selected);
                                                         },
                                                         options: ['ONE', 'TWO', 'THREE'],
                                                         selected: 'Some text'
@@ -143,7 +145,7 @@
                                                             .list('#from', {
                                                                 placeholder: 'PH1',
                                                                 change: function (ctx) {
-                                                                    console.log('FROM : ' + this.value);
+                                                                    console.log('FROM : ' + this.selected);
                                                                 },
                                                                 options: [1, 2, 3],
                                                                 selected: 1
@@ -152,7 +154,7 @@
                                                             .list('#to', {
                                                                 placeholder: 'PH1',
                                                                 change: function (ctx) {
-                                                                    console.log('TO: ' + this.value);
+                                                                    console.log('TO: ' + this.selected);
                                                                 },
                                                                 options: [1, 2, 3],
                                                                 selected: 2
@@ -163,10 +165,14 @@
                                         console.log('CHANGE: ' + this.selected);
                                     }
                                 })
+                                .group('#operand', function () {
+                                })
                                 .button('#btn', {
                                     text: 'Remove',
                                     placeholder: false,
-                                    unholdOn: ['click'],
+                                    isVisible: function (ctx) {
+                                        return ctx['#btn'];
+                                    },
                                     click: function (ctx) {
                                         ctx.remove();
                                         console.log('Click!');

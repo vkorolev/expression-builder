@@ -17,7 +17,7 @@ gulp.task('concat', function () {
 		.pipe(gulp.dest('./dist'));
 });
 
-gulp.task('testserver', function() {
+gulp.task('testserver', function () {
 	gulp.src('test')
 		.pipe(server({
 			livereload: true,
