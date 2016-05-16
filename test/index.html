@@ -14,6 +14,10 @@
         li {
             display: inline;
         }
+
+        .bold {
+            font-weight: bold;
+        }
     </style>
 </head>
 <title>Test</title>
@@ -35,24 +39,22 @@
 <script language="javascript">
     var app = angular.module('app', ['expression-builder']);
     app.controller('expressionsCtrl', [
-        'BuilderNode',
-        'BuilderExpression',
+        'ExpressionNode',
         'ExpressionBuilder',
         '$scope',
         '$templateCache',
-        function (BuilderNode,
-                  BuilderExpression,
+        function (ExpressionNode,
                   ExpressionBuilder,
                   $scope,
                   $templateCache) {
 
-            $templateCache.put('label', '<label>{{expression.text}}</label>');
+            $templateCache.put('label', '<label ng-class="expression.classes">{{expression.text}}</label>');
             $templateCache.put('input', '<input ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list', '<select ng-model="expression.selected" ng-change="expression.change()"><option ng-repeat="option in expression.options">{{option}}</option></select>');
             $templateCache.put('button', '<button ng-click="expression.click($event)">{{expression.text}}</button>');
 
 
-            var node = ExpressionBuilder.node()
+            var node = new ExpressionNode();
 
             var builder =
                     new ExpressionBuilder([
@@ -75,170 +77,81 @@
                     ]);
 
             var schema =
-                    builder.node('#logical-group', function (line) {
-                    });,
-            line.list(
-                    '#logical-op-list',
-                    {
-                        options: ['AND', 'OR'],
-                        value: 'AND',
-                    })
-                    .button('#add-logical-group', {
-                        onClick: function (node, line) {
-                            node.addChild(node.clone());
-
-                            // Node level:
-                            // node.addChild
-                            // node.addBefore
-                            // node.addAfter
-                            // node.parent
-                            // node.level
-                            // node.index
-                            // node.remove
-                            // node.clone
-                            // node['#logical-group']
-                        }
-                    })
-                    .button('#remove-logical-group', {
-                        isVisible: function (node, line) {
-                            return node.level > 0;
-                        },
-                        onClick: function (node, line) {
-                            node.remove();
-                        }
-                    })
-                    .node('#condition-group', function (line) {
-                        line.attr('placeholder', true)
-                                .list('#field-name', {
-                                    options: ['BETWEEN', 'EQUALS'],
-                                    value: 'EQUALS',
-                                    placeholder: {'onChange': false},
-                                    onChange: function (node, line) {
-
-                                        // Expression level
-                                        // put
-                                        // remove
-                                        // clone
-
-                                        switch (this.value) {
-                                            case 'EQUALS':
-                                                line['#operand'].put(function (group) {
-                                                    group.input()
-                                                });
-                                                break;
-                                            case 'BETWEEN':
-                                                line['#operand'].put(function (group) {
-                                                    group.input()
-                                                            .label('', {value: 'AND'})
-                                                            .input()
-                                                });
-                                                break;
-
-                                        }
-
+                    builder.node('#logical-group', function (schema) {
+                        schema.list('#logical-op-list', {
+                                    options: ['AND', 'OR'],
+                                    value: 'AND'
+                                })
+                                .button('#add-logical-group', {
+                                    onClick: function (node, line) {
+                                        node.addChild(node.clone());
+                                        // Node level:
+                                        // node.addChild
+                                        // node.addBefore
+                                        // node.addAfter
+                                        // node.parent
+                                        // node.level
+                                        // node.index
+                                        // node.remove
+                                        // node.clone
+                                        // node['#logical-group']
                                     }
                                 })
-                                .list('#operator-list', {
-                                    onChange: function (node, line) {
-
-                                    }
-                                })
-                                .group('#opearand')
-                                .button('#remove', {
-                                    isVisible: function(node, line){
-                                        return line.attr('placeholder')
+                                .button('#remove-logical-group', {
+                                    isVisible: function (node, line) {
+                                        return node.level > 0;
                                     },
-                                    //placeholder: false,
-                                    onClick: function (ctx) {
-                                        ctx.remove();
+                                    onClick: function (node, line) {
+                                        node.remove();
                                     }
                                 })
-                    })
-                    .node()
+                                .node('#condition-group', function (schema) {
+                                    schema.attr('placeholder', true)
+                                            .label({
+                                                text: 'Field',
+                                                classes: [{bold: !schema.attr('placeholder')}]
+                                            })
+                                            .list('#operator', {
+                                                options: ['BETWEEN', 'EQUALS'],
+                                                value: 'EQUALS',
+                                                // TODO Binds to onChange and set placeholder to false
+                                                placeholder: {'onChange': false},
+                                                onChange: function (node, line) {
+                                                    // Expression level
+                                                    // put
+                                                    // remove
+                                                    // clone
 
-
-            var schema =
-                    builder.node({
-                                id: '#upperPlaceholder',
-                                placeholder: true
-                            },
-                            function (builder) {
-                                builder
-                                        .label('#label', {text: 'Test label'})
-                                        .input('#input', {
-                                            value: 'Text input',
-                                            unholdOn: ['input'],
-                                            isVisible: function (ctx) {
-                                                return this.value.length < 20;
-                                            },
-                                            input: function (ctx) {
-                                                console.log(ctx['#input'].value);
-                                            },
-                                            isValid: function (ctx) {
-                                                return 'Error';
-                                            }
-                                        })
-                                        .list('#list', {
-                                            options: ['IN', 'BETWEEN', 'EQUALS'],
-                                            value: 'EQUALS',
-                                            unholdOn: ['change'],
-                                            change: function (ctx) {
-                                                switch (this.selected.toLowerCase()) {
-                                                    case 'equals':
-                                                        ctx.put('#operand', function (builder) {
-                                                            builder.list('#equals', {
-                                                                placeholder: 'PH',
-                                                                change: function (ctx) {
-                                                                    console.log('EQUALS IS SELECTED: ' + this.selected);
-                                                                },
-                                                                options: ['ONE', 'TWO', 'THREE'],
-                                                                selected: 'Some text'
+                                                    var operand = line.get('#operand');
+                                                    switch (this.value) {
+                                                        case 'EQUALS':
+                                                            line.put(operand, function (group) {
+                                                                group.input();
                                                             });
-                                                        });
-                                                        break;
-                                                    case 'between':
-                                                        ctx.replace('#operand', function (builder) {
-                                                            builder
-                                                                    .list('#from', {
-                                                                        placeholder: 'PH1',
-                                                                        change: function (ctx) {
-                                                                            console.log('FROM : ' + this.selected);
-                                                                        },
-                                                                        options: [1, 2, 3],
-                                                                        selected: 1
-                                                                    })
-                                                                    .label('#and', {text: 'AND'})
-                                                                    .list('#to', {
-                                                                        placeholder: 'PH1',
-                                                                        change: function (ctx) {
-                                                                            console.log('TO: ' + this.selected);
-                                                                        },
-                                                                        options: [1, 2, 3],
-                                                                        selected: 2
-                                                                    });
-                                                        });
-                                                        break;
+                                                            break;
+                                                        case 'BETWEEN':
+                                                            line.put(operand, function (group) {
+                                                                group.input()
+                                                                        .label({text: 'AND'})
+                                                                        .input();
+                                                            });
+                                                            break;
+
+                                                    }
+
                                                 }
-                                                console.log('CHANGE: ' + this.selected);
-                                            }
-                                        })
-                                        .group('#operand', function () {
-                                        })
-                                        .button('#btn', {
-                                            text: 'Remove',
-                                            placeholder: false,
-                                            isVisible: function (ctx) {
-                                                return ctx['#btn'];
-                                            },
-                                            click: function (ctx) {
-                                                ctx.remove();
-                                                console.log('Click!');
-                                            }
-                                        })
-                            })
-                            .node({id: '#otherNode'}, function (builder) {
-                                builder.label('#newNode', {text: 'Other Node'});
-                            });
+                                            })
+                                            .group('#operand')
+                                            .button('#remove', {
+                                                isVisible: function (node, line) {
+                                                    return line.attr('placeholder');
+                                                },
+                                                onClick: function (node, line) {
+                                                    node.remove();
+                                                }
+                                            })
+                                })
+                    });
 
             schema.apply(node);
             $scope.model = {node: node};

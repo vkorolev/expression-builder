@@ -1,9 +1,7 @@
 <ul class="expression-builder-node" ng-class="{ placeholder: node.placeholder }">
     <li ng-repeat="expression in node.expressions"
-        ng-if="expression.isVisible()"
         eb-expression="expression"
         class="expression-builder-expression">
-
     </li>
 
     <li ng-repeat="child in node.children" eb-node="child" class="expression-builder-child">

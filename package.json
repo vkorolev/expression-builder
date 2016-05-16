@@ -26,9 +26,12 @@
   },
   "homepage": "https://github.com/korolyovvalentin/expression-builder#readme",
   "devDependencies": {
+    "browserify": "^13.0.1",
     "gulp": "^3.9.1",
     "gulp-angular-templatecache": "^1.8.0",
+    "gulp-commonjs": "^0.1.0",
     "gulp-concat": "^2.6.0",
-    "gulp-server-livereload": "^1.7.4"
+    "gulp-server-livereload": "^1.7.4",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
