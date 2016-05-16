@@ -1,71 +1,79 @@
-module.exports = NodeSchema;
+var ExpressionNode = require('../model/expression-node');
 
-var Node = require('./node');
+module.exports = function (GroupSchema, undefined) {
+   function NodeSchema() {
+      this.plan = [];
+      this.children = [];
+      this.attributes = {};
+      this.context = new ExpressionNode();
+   }
 
-function NodeSchema() {
-   this.plan = [];
-   this.children = [];
-   this.context = new Node();
-}
-
-NodeSchema.prototype.apply = function (node) {
-   var context = new Node(this, node);
-   var index = 0;
-   var self = this;
-
-   this.plan.forEach(function (p) {
-      var tmpNode = p(node, context);
-      if (tmpNode !== node) {
-         self.children[index++].apply(tmpNode);
+   NodeSchema.prototype.attr = function (key, value) {
+      if (value === undefined) {
+         return this.attributes[key];
+      } else {
+         this.attributes[key] = value;
       }
-   });
-};
+      return this;
+   };
 
-NodeSchema.prototype.node = function (parameters, build) {
-   var self = this;
+   NodeSchema.prototype.apply = function (node) {
+      var context = new ExpressionNode(this, node);
+      var index = 0;
+      var self = this;
 
-   var buildNode = function (node, context) {
-      var newNode = angular.extend(new Node(), parameters);
+      this.plan.forEach(function (p) {
+         var tmpNode = p(node, context);
+         if (tmpNode !== node) {
+            self.children[index++].apply(tmpNode);
+         }
+      });
+   };
 
-      function Node(node) {
-         this.parent = node;
+   NodeSchema.prototype.node = function (id, build) {
+      var self = this;
+      if (!build) {
+         throw new Error('Build function is not defined');
       }
 
-      Node.prototype = context.constructor;
+      var buildNode = function (node, context) {
+         var newNode = new ExpressionNode(id);
 
-      var builder = new NodeSchema(expressions);
-      build(builder);
-      builder.apply(newNode);
+         var schema = new NodeSchema();
+         build(schema);
+         schema.apply(newNode);
 
-      node.children.push(newNode);
-      newNode.parent = node;
-      newNode.remove = function () {
-         var index = node.children.indexOf(newNode);
-         node.children.splice(index, 1);
+         node.children.push(newNode);
+         newNode.parent = node;
+         self.children.push(schema);
+
+         return node;
       };
 
-      self.children.push(builder);
+      this.plan.push(buildNode);
 
-      return node;
+      return this;
    };
 
-   this.plan.push(buildNode);
+   NodeSchema.prototype.group = function (id, build) {
+      if (!build) {
+         throw new Error('Build function is not defined');
+      }
 
-   return this;
-};
+      var buildGroup = function (node, context) {
+         var schema = new GroupSchema();
+         build(schema);
+         schema.apply(node);
 
-NodeSchema.prototype.group = function (id, build) {
-   var buildGroup = function (node, context) {
-      var builder = new GroupSchema();
-      build(builder);
-      builder.apply(node);
+         context[id] = node.expressions[node.expressions.length - 1];
 
-      context[id] = node.expressions[node.expressions.length - 1];
+         return node;
+      };
 
-      return node;
+      this.plan.push(buildGroup);
+
+      return this;
    };
 
-   this.plan.push(buildGroup);
-
-   return this;
+   return NodeSchema;
 };

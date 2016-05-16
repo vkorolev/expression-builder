@@ -1,6 +1,6 @@
 module.exports = Node;
 
-function Node(builder, node) {
+function Node(schema, node) {
    this.add = function (child) {
       node.children.push(child);
    };
@@ -11,7 +11,7 @@ function Node(builder, node) {
 
    this.clone = function () {
       var newNode = new ExpressionNode();
-      builder.apply(newNode);
+      schema.apply(newNode);
 
       return newNode;
    };

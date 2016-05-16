@@ -141,7 +141,7 @@
 
                                                 }
                                             })
-                                            .group('#operand')
+                                            .group('#operand', angular.noop)
                                             .button('#remove', {
                                                 isVisible: function (node, line) {
                                                     return line.attr('placeholder');

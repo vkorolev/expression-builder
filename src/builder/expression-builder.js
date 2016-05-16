@@ -2,14 +2,18 @@ module.exports = function (angular) {
    angular.module('expression-builder')
        .factory('ExpressionBuilder', Factory);
 
-   Factory.$inject = ['ExpressionNode', 'ExpressionGroup'];
+   Factory.$inject = ['ExpressionGroup'];
 
-   var NodeSchema = require('./node-schema'),
-       GroupSchema = require('./group-schema'),
+   var nodeSchemaFactoryT = require('./node-schema'),
+       groupSchemaFactoryT = require('./group-schema'),
        Patch = require('./../services/patch');
 
-   function Factory(ExpressionNode, ExpressionGroup) {
+   function Factory(ExpressionGroup) {
       function ExpressionBuilder(expressions) {
+         var GroupSchema = groupSchemaFactoryT();
+         var NodeSchema = nodeSchemaFactoryT(GroupSchema);
+         
+
          expressions.forEach(function (settings) {
             var factory = function (id, parameters) {
 
@@ -43,8 +47,8 @@ module.exports = function (angular) {
                return this;
             };
 
-            NodeSchema.prototype[settings.property] = factory;
-            GroupSchema.prototype[settings.property] = factory;
+            NodeSchema.prototype[settings.type] = factory;
+            GroupSchema.prototype[settings.type] = factory;
          });
 
          return new NodeSchema();
