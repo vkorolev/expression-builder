@@ -1,11 +1,12 @@
+var Node = require('./node');
+var Line = require('./line');
 var ExpressionNode = require('../model/expression-node');
+var utility = require('../services/utils');
 
 module.exports = function (GroupSchema, undefined) {
    function NodeSchema() {
       this.plan = [];
-      this.children = [];
       this.attributes = {};
-      this.context = new ExpressionNode();
    }
 
    NodeSchema.prototype.attr = function (key, value) {
@@ -17,37 +18,37 @@ module.exports = function (GroupSchema, undefined) {
       return this;
    };
 
-   NodeSchema.prototype.apply = function (node) {
-      var context = new ExpressionNode(this, node);
-      var index = 0;
-      var self = this;
+   NodeSchema.prototype.apply = function (expressionNode) {
+      var nodeContext = new Node(this, expressionNode);
+      var lineContext = new Line();
 
       this.plan.forEach(function (p) {
-         var tmpNode = p(node, context);
-         if (tmpNode !== node) {
-            self.children[index++].apply(tmpNode);
-         }
+         p(expressionNode, nodeContext, lineContext);
       });
+
+      nodeContext.attributes = utility.clone(this.attributes);
+
+      return nodeContext;
    };
 
    NodeSchema.prototype.node = function (id, build) {
-      var self = this;
       if (!build) {
          throw new Error('Build function is not defined');
       }
 
-      var buildNode = function (node, context) {
+      var buildNode = function (expressionNode, nodeContext, line) {
          var newNode = new ExpressionNode(id);
 
          var schema = new NodeSchema();
          build(schema);
-         schema.apply(newNode);
 
-         node.children.push(newNode);
-         newNode.parent = node;
-         self.children.push(schema);
+         var newContext = schema.apply(newNode);
+         newContext.parent = nodeContext;
+         newContext.level = nodeContext.level + 1;
 
-         return node;
+         expressionNode.children.push(newNode);
+
+         return expressionNode;
       };
 
       this.plan.push(buildNode);
@@ -60,14 +61,14 @@ module.exports = function (GroupSchema, undefined) {
          throw new Error('Build function is not defined');
       }
 
-      var buildGroup = function (node, context) {
+      var buildGroup = function (expressionNode, nodeContext, line) {
          var schema = new GroupSchema();
          build(schema);
-         schema.apply(node);
+         schema.apply(expressionNode);
 
-         context[id] = node.expressions[node.expressions.length - 1];
+         nodeContext[id] = expressionNode.expressions[expressionNode.expressions.length - 1];
 
-         return node;
+         return expressionNode;
       };
 
       this.plan.push(buildGroup);

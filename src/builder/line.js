@@ -1,10 +1,14 @@
 module.exports = Line;
 
+var utility = require('../services/utils');
+
 function Line() {
    this.expressions = [];
 
-   this.remove = function (expression) {
-      var index = this.expressions.indexOf(expression);
+   this.remove = function (id) {
+      var index = utility.indexOf(this.expressions, function (item) {
+         return item.id === id;
+      });
       if (index < 0) {
          throw Error('Expression not found');
       }
@@ -12,8 +16,11 @@ function Line() {
       this.expressions[index].expressions = [];
    };
 
-   this.clone = function (expression) {
-      var index = this.expressions.indexOf(expression);
+   this.clone = function (id) {
+      var index = utility.indexOf(this.expressions, function (item) {
+         return item.id === id;
+      });
+
       if (index < 0) {
          throw Error('Expression not found');
       }
@@ -21,8 +28,11 @@ function Line() {
       return angular.copy(expression);
    };
 
-   this.put = function (expression, build) {
-      var index = this.expressions.indexOf(expression);
+   this.put = function (id, build) {
+      var index = utility.indexOf(this.expressions, function (item) {
+         return item.id === id;
+      });
+
       if (index < 0) {
          throw Error('Expression not found');
       }

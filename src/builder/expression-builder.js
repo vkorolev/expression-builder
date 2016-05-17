@@ -3,9 +3,7 @@ var nodeSchemaFactoryT = require('./node-schema'),
     Patch = require('./../services/patch');
 
 module.exports = function (module) {
-   module
-       .factory('ExpressionBuilder', Factory);
-
+   module.factory('ExpressionBuilder', Factory);
    Factory.$inject = ['ExpressionGroup'];
 
    function Factory(ExpressionGroup) {
@@ -16,15 +14,17 @@ module.exports = function (module) {
          expressions.forEach(function (settings) {
             var factory = function (id, parameters) {
 
-               var build = function (node, context) {
-                  var patch = new Patch(context);
+               var build = function (expressionNode, node, line) {
+                  var patch = new Patch(node, line);
 
                   var expression = angular.extend({}, parameters);
                   var group = new ExpressionGroup();
+                  group.id = id;
                   group.expressions.push(expression);
                   expression.template = settings.templateUrl;
                   // expression.parent = node;
-                  node.expressions.push(expression);
+                  expressionNode.expressions.push(expression);
+                  line.expressions.push(group);
 
                   var keys = Object.keys(expression);
 
@@ -36,9 +36,7 @@ module.exports = function (module) {
                      }
                   }
 
-                  context[id] = expression;
-
-                  return node;
+                  return expressionNode;
                };
 
                this.plan.push(build);

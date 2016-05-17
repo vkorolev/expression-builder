@@ -48,10 +48,13 @@
                   $scope,
                   $templateCache) {
 
-            $templateCache.put('label', '<label ng-class="expression.classes">{{expression.text}}</label>');
-            $templateCache.put('input', '<input ng-model="expression.value" ng-change="expression.input($event);"/>');
-            $templateCache.put('list', '<select ng-model="expression.selected" ng-change="expression.change()"><option ng-repeat="option in expression.options">{{option}}</option></select>');
-            $templateCache.put('button', '<button ng-click="expression.click($event)">{{expression.text}}</button>');
+            $templateCache.put('label', '<label ng-if="expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
+            $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
+            $templateCache.put('list',
+                    '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
+                    '<option ng-repeat="option in expression.options">{{option}}</option>' +
+                    '</select>');
+            $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
 
 
             var node = new ExpressionNode();
@@ -78,59 +81,66 @@
 
             var schema =
                     builder.node('#logical-group', function (schema) {
-                        schema.list('#logical-op-list', {
+                        schema.attr('placeholder', true)
+                                .list('#logical-op-list', {
+                                    isVisible: function () {
+                                        return true;
+                                    },
                                     options: ['AND', 'OR'],
                                     value: 'AND'
                                 })
                                 .button('#add-logical-group', {
-                                    onClick: function (node, line) {
+                                    text: 'Add',
+                                    isVisible: function () {
+                                        return true;
+                                    },
+                                    click: function (node, line) {
                                         node.addChild(node.clone());
-                                        // Node level:
-                                        // node.addChild
-                                        // node.addBefore
-                                        // node.addAfter
-                                        // node.parent
-                                        // node.level
-                                        // node.index
-                                        // node.remove
-                                        // node.clone
-                                        // node['#logical-group']
                                     }
                                 })
                                 .button('#remove-logical-group', {
+                                    text: 'Remove',
                                     isVisible: function (node, line) {
                                         return node.level > 0;
                                     },
-                                    onClick: function (node, line) {
+                                    click: function (node, line) {
                                         node.remove();
                                     }
                                 })
                                 .node('#condition-group', function (schema) {
                                     schema.attr('placeholder', true)
-                                            .label({
-                                                text: 'Field',
+                                            .list('#field', {
+                                                options: ['Field 1', 'Field 2', 'Field 3'],
+                                                value: 'Field 1',
+                                                change: function (node, line) {
+                                                    if (node.attr('placeholder')) {
+                                                        node.addAfter(node.clone());
+                                                    }
+                                                    node.attr('placeholder', false);
+                                                },
+                                                isVisible: function () {
+                                                    return true;
+                                                },
                                                 classes: [{bold: !schema.attr('placeholder')}]
                                             })
                                             .list('#operator', {
                                                 options: ['BETWEEN', 'EQUALS'],
-                                                value: 'EQUALS',
+                                                value: 'Select Value',
+                                                isVisible: function () {
+                                                    return true;
+                                                },
                                                 // TODO Binds to onChange and set placeholder to false
-                                                placeholder: {'onChange': false},
-                                                onChange: function (node, line) {
-                                                    // Expression level
-                                                    // put
-                                                    // remove
-                                                    // clone
-
-                                                    var operand = line.get('#operand');
+//                                                placeholder: {'onChange': false},
+                                                change: function (node, line) {
+                                                    node.attr('placeholder', false);
                                                     switch (this.value) {
                                                         case 'EQUALS':
-                                                            line.put(operand, function (group) {
+                                                            line.put('#operand', function (group) {
                                                                 group.input();
                                                             });
                                                             break;
                                                         case 'BETWEEN':
-                                                            line.put(operand, function (group) {
+                                                            line.put('#operand', function (group) {
                                                                 group.input()
                                                                         .label({text: 'AND'})
                                                                         .input();
@@ -143,10 +153,11 @@
                                             })
                                             .group('#operand', angular.noop)
                                             .button('#remove', {
+                                                text: 'Remove',
                                                 isVisible: function (node, line) {
-                                                    return line.attr('placeholder');
+                                                    return !node.attr('placeholder');
                                                 },
-                                                onClick: function (node, line) {
+                                                click: function (node, line) {
                                                     node.remove();
                                                 }
                                             })
