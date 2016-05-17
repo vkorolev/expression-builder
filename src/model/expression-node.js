@@ -1,7 +1,7 @@
-module.exports = Node; 
+module.exports = Node;
 
 function Node(id) {
-   this.id = id;
-   this.expressions = [];
-   this.children = [];
+    this.id = id;
+    this.expressions = [];
+    this.children = [];
 }

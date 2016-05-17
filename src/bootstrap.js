@@ -2,9 +2,9 @@
 
    var module = angular.module('expression-builder', []);
 
-   require('./builder/expression-builder')(module);
-   require('./model/eb-expression')(module);
-   require('./model/eb-node')(module);
+   require('./builder/expression-builder')(angular);
+   require('./model/eb-expression')(angular);
+   require('./model/eb-node')(angular);
 
    var expressionGroup = require('./model/expression-group'),
        expressionNode = require('./model/expression-node');

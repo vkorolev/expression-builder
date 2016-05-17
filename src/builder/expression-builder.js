@@ -1,13 +1,14 @@
 var nodeSchemaFactoryT = require('./node-schema'),
     groupSchemaFactoryT = require('./group-schema'),
-    Patch = require('./../services/patch');
+    Patch = require('./../services/patch'),
+    utility = require('./../services/utils');
 
-module.exports = function (module) {
-   module.factory('ExpressionBuilder', Factory);
+module.exports = function (angular) {
+   angular.module('expression-builder').factory('ExpressionBuilder', Factory);
    Factory.$inject = ['ExpressionGroup'];
 
    function Factory(ExpressionGroup) {
-      function ExpressionBuilder(expressions) {
+      function ExpressionBuilder(expressions, globalSettings) {
          var GroupSchema = groupSchemaFactoryT();
          var NodeSchema = nodeSchemaFactoryT(GroupSchema);
 
@@ -17,7 +18,7 @@ module.exports = function (module) {
                var build = function (expressionNode, node, line) {
                   var patch = new Patch(node, line);
 
-                  var expression = angular.extend({}, parameters);
+                  var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
                   var group = new ExpressionGroup();
                   group.id = id;
                   group.expressions.push(expression);
@@ -47,7 +48,7 @@ module.exports = function (module) {
                var build = function (expressionNode, node, line) {
                   var patch = new Patch(node, line);
 
-                  var expression = angular.extend({}, parameters);
+                  var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
                   expression.id = id;
                   expression.template = settings.templateUrl;
                   line.add(expression);

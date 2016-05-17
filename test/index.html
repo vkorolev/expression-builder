@@ -48,10 +48,10 @@
                   $scope,
                   $templateCache) {
 
-            $templateCache.put('label', '<label ng-if="!expression.isVisible || expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
-            $templateCache.put('input', '<input ng-if="!expression.isVisible || expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
+            $templateCache.put('label', '<label ng-if="expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
+            $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list',
-                    '<select ng-if="!expression.isVisible || expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
+                    '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
                     '<option ng-repeat="option in expression.options">{{option}}</option>' +
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
@@ -78,23 +78,23 @@
                             type: 'button',
                             templateUrl: 'button'
                         }
-                    ]);
+                    ], {
+                        defaults: {
+                            isVisible: function () {
+                                return true;
+                            }
+                        }
+                    });
 
             var schema =
                     builder.node('#logical-group', function (schema) {
                         schema.attr('placeholder', true)
                                 .list('#logical-op-list', {
-                                    isVisible: function () {
-                                        return true;
-                                    },
                                     options: ['AND', 'OR'],
                                     value: 'AND'
                                 })
                                 .button('#add-logical-group', {
                                     text: 'Add',
-                                    isVisible: function () {
-                                        return true;
-                                    },
                                     click: function (node, line) {
                                         node.addChildBefore(node.clone());
                                     }
@@ -119,9 +119,6 @@
                                                     }
                                                     node.attr('placeholder', false);
                                                 },
-                                                isVisible: function () {
-                                                    return true;
-                                                },
                                                 classes: [{bold: !schema.attr('placeholder')}]
                                             })
                                             .list('#operator', {
@@ -137,31 +134,16 @@
                                                     switch (this.value) {
                                                         case 'EQUALS':
                                                             line.put('#operand', function (group) {
-                                                                group.input('#equals', {
-                                                                    isVisible: function () {
-                                                                        return true;
-                                                                    }
-                                                                });
+                                                                group.input('#equals', {value: ''});
                                                             });
                                                             break;
                                                         case 'BETWEEN':
                                                             line.put('#operand', function (group) {
-                                                                group.input('#from', {
-                                                                            isVisible: function () {
-                                                                                return true;
-                                                                            }
-                                                                        })
+                                                                group.input('#from', {})
                                                                         .label('#andLabel', {
-                                                                            text: 'AND',
-                                                                            isVisible: function () {
-                                                                                return true;
-                                                                            }
+                                                                            text: 'AND'
                                                                         })
-                                                                        .input('#to', {
-                                                                            isVisible: function () {
-                                                                                return true;
-                                                                            }
-                                                                        });
+                                                                        .input('#to', {});
                                                             });
                                                             break;
 
