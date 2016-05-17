@@ -1,7 +1,6 @@
-module.exports = function (angular) {
+module.exports = function (module) {
 
-   angular.module('expression-builder')
-       .directive('ebExpression', Directive);
+   module.directive('ebExpression', Directive);
 
    Directive.$inject = ['$templateCache', '$compile'];
 

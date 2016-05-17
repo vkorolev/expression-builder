@@ -1,18 +1,17 @@
-module.exports = function (angular) {
-   angular.module('expression-builder')
+var nodeSchemaFactoryT = require('./node-schema'),
+    groupSchemaFactoryT = require('./group-schema'),
+    Patch = require('./../services/patch');
+
+module.exports = function (module) {
+   module
        .factory('ExpressionBuilder', Factory);
 
    Factory.$inject = ['ExpressionGroup'];
-
-   var nodeSchemaFactoryT = require('./node-schema'),
-       groupSchemaFactoryT = require('./group-schema'),
-       Patch = require('./../services/patch');
 
    function Factory(ExpressionGroup) {
       function ExpressionBuilder(expressions) {
          var GroupSchema = groupSchemaFactoryT();
          var NodeSchema = nodeSchemaFactoryT(GroupSchema);
-         
 
          expressions.forEach(function (settings) {
             var factory = function (id, parameters) {

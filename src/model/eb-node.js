@@ -1,7 +1,6 @@
-module.exports = function (angular) {
+module.exports = function (module) {
 
-   angular.module('expression-builder')
-       .directive('ebNode', Directive);
+   module.directive('ebNode', Directive);
 
    Directive.$inject = [];
 

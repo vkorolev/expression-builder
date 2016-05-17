@@ -1,24 +1,19 @@
 (function (angular, undefined) {
 
-   var app = angular.module('expression-builder', [])
+   var module = angular.module('expression-builder', []);
 
-   var utils = require('./services/utils');
-
-   require('./builder/expression-builder')(angular);
-
-   require('./model/eb-expression')(angular);
-   require('./model/eb-node')(angular);
-   require('./services/patch')(angular);
+   require('./builder/expression-builder')(module);
+   require('./model/eb-expression')(module);
+   require('./model/eb-node')(module);
 
    var expressionGroup = require('./model/expression-group'),
        expressionNode = require('./model/expression-node');
 
-
-   app.factory('ExpressionNode', function () {
+   module.factory('ExpressionNode', function () {
       return expressionNode;
    });
    
-   app.factory('ExpressionGroup', function () {
+   module.factory('ExpressionGroup', function () {
       return expressionGroup;
    });
 
