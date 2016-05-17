@@ -48,10 +48,10 @@
                   $scope,
                   $templateCache) {
 
-            $templateCache.put('label', '<label ng-if="expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
-            $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
+            $templateCache.put('label', '<label ng-if="!expression.isVisible || expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
+            $templateCache.put('input', '<input ng-if="!expression.isVisible || expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list',
-                    '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
+                    '<select ng-if="!expression.isVisible || expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
                     '<option ng-repeat="option in expression.options">{{option}}</option>' +
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
@@ -59,6 +59,7 @@
 
             var node = new ExpressionNode();
 
+            //TODO: add default config
             var builder =
                     new ExpressionBuilder([
                         {
@@ -95,13 +96,13 @@
                                         return true;
                                     },
                                     click: function (node, line) {
-                                        node.addChild(node.clone());
+                                        node.addChildBefore(node.clone());
                                     }
                                 })
                                 .button('#remove-logical-group', {
                                     text: 'Remove',
                                     isVisible: function (node, line) {
-                                        return node.level > 0;
+                                        return node.level > 1;
                                     },
                                     click: function (node, line) {
                                         node.remove();
@@ -126,8 +127,8 @@
                                             .list('#operator', {
                                                 options: ['BETWEEN', 'EQUALS'],
                                                 value: 'Select Value',
-                                                isVisible: function () {
-                                                    return true;
+                                                isVisible: function (node) {
+                                                    return !node.attr('placeholder');
                                                 },
                                                 // TODO Binds to onChange and set placeholder to false
 //                                                placeholder: {'onChange': false},
@@ -136,14 +137,31 @@
                                                     switch (this.value) {
                                                         case 'EQUALS':
                                                             line.put('#operand', function (group) {
-                                                                group.input();
+                                                                group.input('#equals', {
+                                                                    isVisible: function () {
+                                                                        return true;
+                                                                    }
+                                                                });
                                                             });
                                                             break;
                                                         case 'BETWEEN':
                                                             line.put('#operand', function (group) {
-                                                                group.input()
-                                                                        .label({text: 'AND'})
-                                                                        .input();
+                                                                group.input('#from', {
+                                                                            isVisible: function () {
+                                                                                return true;
+                                                                            }
+                                                                        })
+                                                                        .label('#andLabel', {
+                                                                            text: 'AND',
+                                                                            isVisible: function () {
+                                                                                return true;
+                                                                            }
+                                                                        })
+                                                                        .input('#to', {
+                                                                            isVisible: function () {
+                                                                                return true;
+                                                                            }
+                                                                        });
                                                             });
                                                             break;
 
@@ -151,7 +169,9 @@
 
                                                 }
                                             })
-                                            .group('#operand', angular.noop)
+                                            .group('#operand', function (schema) {
+                                                schema.label('#groupPh', {text: 'PH'});
+                                            })
                                             .button('#remove', {
                                                 text: 'Remove',
                                                 isVisible: function (node, line) {

@@ -1,9 +1,15 @@
 module.exports = Line;
 
-var utility = require('../services/utils');
+var ExpressionGroup = require('../model/expression-group'),
+    utility = require('../services/utils');
 
-function Line() {
-   this.expressions = [];
+function Line(GroupSchema, node) {
+   this.node = node;
+   this.expressions = node.expression.expressions;
+
+   this.add = function (expression) {
+      this.expressions.push(expression);
+   };
 
    this.remove = function (id) {
       var index = utility.indexOf(this.expressions, function (item) {
@@ -13,7 +19,7 @@ function Line() {
          throw Error('Expression not found');
       }
 
-      this.expressions[index].expressions = [];
+      this.node.expression[index].expressions = [];
    };
 
    this.clone = function (id) {
@@ -37,11 +43,11 @@ function Line() {
          throw Error('Expression not found');
       }
 
-      var schema = new GroupSchema(),
+      var schema = new GroupSchema(this),
           group = new ExpressionGroup();
-      // TODO: modify group, id inheritance etc
       build(schema);
       schema.apply(group);
-      return angular.copy(this.expressions[index]);
+      group.id = id;
+      this.expressions.splice(index, 1, group)
    }
 }

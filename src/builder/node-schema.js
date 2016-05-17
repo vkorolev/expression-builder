@@ -1,6 +1,7 @@
 var Node = require('./node');
 var Line = require('./line');
 var ExpressionNode = require('../model/expression-node');
+var ExpressionGroup = require('../model/expression-group');
 var utility = require('../services/utils');
 
 module.exports = function (GroupSchema, undefined) {
@@ -20,7 +21,7 @@ module.exports = function (GroupSchema, undefined) {
 
    NodeSchema.prototype.apply = function (expressionNode) {
       var nodeContext = new Node(this, expressionNode);
-      var lineContext = new Line();
+      var lineContext = new Line(GroupSchema, nodeContext);
 
       this.plan.forEach(function (p) {
          p(expressionNode, nodeContext, lineContext);
@@ -62,11 +63,14 @@ module.exports = function (GroupSchema, undefined) {
       }
 
       var buildGroup = function (expressionNode, nodeContext, line) {
-         var schema = new GroupSchema();
-         build(schema);
-         schema.apply(expressionNode);
+         var expressionGroup = new ExpressionGroup();
+         expressionGroup.id = id;
 
-         nodeContext[id] = expressionNode.expressions[expressionNode.expressions.length - 1];
+         var schema = new GroupSchema(line);
+         build(schema);
+         schema.apply(expressionGroup);
+
+         line.add(expressionGroup);
 
          return expressionNode;
       };

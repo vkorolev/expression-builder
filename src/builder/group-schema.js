@@ -1,35 +1,24 @@
-var Line = require('./line');
+var ExpressionNode = require('../model/expression-node');
 
 module.exports = function () {
-   function GroupSchema() {
+   function GroupSchema(line) {
       this.plan = [];
-      this.items = [];
+      this.line = line;
    }
 
-   GroupSchema.prototype.apply = function (node) {
-      var fakeNode = angular.copy(node);
-      fakeNode.expressions = [];
-      fakeNode.children = [];
-
-      var groupExpression = new GroupSchema();
-      var context = new Line();
+   GroupSchema.prototype.apply = function (expressionGroup) {
+      var self = this,
+          fakeNode = new ExpressionNode();
 
       this.plan.forEach(function (p) {
-         p(fakeNode, context);
+         p(fakeNode, self.line.node, self.line);
       });
 
-      fakeNode.expressions.forEach(function (expression) {
-         groupExpression.expressions.push(expression);
-         expression.parent = groupExpression;
-         expression.remove = function () {
-            var index = groupExpression.expressions.indexOf(expression);
-            groupExpression.expressions.splice(index, 1);
-         };
-      });
+      var count = this.plan.length,
+          from = this.line.expressions.length - count;
 
+      expressionGroup.expressions = self.line.expressions.splice(from, count);
       fakeNode.expressions = [];
-
-      node.expressions.push(groupExpression);
    };
 
    return GroupSchema;

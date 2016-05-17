@@ -22,9 +22,35 @@ module.exports = function (module) {
                   group.id = id;
                   group.expressions.push(expression);
                   expression.template = settings.templateUrl;
-                  // expression.parent = node;
-                  expressionNode.expressions.push(expression);
-                  line.expressions.push(group);
+                  line.add(group);
+
+                  var keys = Object.keys(expression);
+
+                  for (var i = 0, length = keys.length; i < length; i++) {
+                     var key = keys[i];
+
+                     if (angular.isFunction(expression[key])) {
+                        patch.context(expression, key);
+                     }
+                  }
+
+                  return expressionNode;
+               };
+
+               this.plan.push(build);
+
+               return this;
+            };
+
+            var groupFactory = function (id, parameters) {
+
+               var build = function (expressionNode, node, line) {
+                  var patch = new Patch(node, line);
+
+                  var expression = angular.extend({}, parameters);
+                  expression.id = id;
+                  expression.template = settings.templateUrl;
+                  line.add(expression);
 
                   var keys = Object.keys(expression);
 
@@ -45,7 +71,7 @@ module.exports = function (module) {
             };
 
             NodeSchema.prototype[settings.type] = factory;
-            GroupSchema.prototype[settings.type] = factory;
+            GroupSchema.prototype[settings.type] = groupFactory;
          });
 
          return new NodeSchema();

@@ -9,28 +9,9 @@ function Node(schema, node, parent, attributes) {
 
     this.parent = parent;
 
-    this.node = node;
+    this.expression = node;
 
     this.level = parent ? parent.level + 1 : 0;
-
-    this.replace = function (id, build) {
-        var builder = new GroupBuilder();
-        var fakeNode = new Node();
-        build(builder);
-        builder.apply(fakeNode);
-
-        var index = node.expressions.indexOf(this[id]);
-        var groupExpression = fakeNode.expressions[0];
-        groupExpression.id = id;
-        groupExpression.parent = node;
-        groupExpression.remove = function () {
-            var index = node.expressions.indexOf(groupExpression);
-            node.expressions.splice(index, 1);
-        };
-
-        this[id] = groupExpression;
-        node.expressions.splice(index, 1, groupExpression);
-    };
 }
 
 Node.prototype.attr = function (key, value) {
@@ -43,20 +24,20 @@ Node.prototype.attr = function (key, value) {
 
 Node.prototype.addChildAfter = function (child, after) {
     var index = after
-        ? this.node.children.indexOf(after.node)
-        : this.node.children.length - 1;
+        ? this.expression.children.indexOf(after.expression)
+        : this.expression.children.length - 1;
 
-    this.node.children.splice(index + 1, 0, child.node);
+    this.expression.children.splice(index + 1, 0, child.expression);
     child.parent = this;
     child.level = this.level + 1;
 };
 
 Node.prototype.addChildBefore = function (child, before) {
     var index = before
-        ? this.node.children.indexOf(before.node)
+        ? this.expression.children.indexOf(before.expression)
         : 0;
 
-    this.node.children.splice(index, 0, child.node);
+    this.expression.children.splice(index, 0, child.expression);
     child.parent = this;
     child.level = this.level + 1;
 };
@@ -85,6 +66,6 @@ Node.prototype.remove = function () {
         throw Error('Root element can\'t be removed');
     }
 
-    var index = this.parent.node.children.indexOf(this.node);
-    this.parent.node.children.splice(index, 1);
+    var index = this.parent.expression.children.indexOf(this.expression);
+    this.parent.expression.children.splice(index, 1);
 };
