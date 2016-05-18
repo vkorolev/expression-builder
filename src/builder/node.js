@@ -1,6 +1,5 @@
 var ExpressionNode = require('../model/expression-node');
 var SerializationService = require('../services/serialization');
-var utility = require('../services/utils');
 
 module.exports = Node;
 
@@ -31,7 +30,12 @@ Node.prototype.addChildAfter = function (child, after) {
         ? this.expression.children.indexOf(after.expression)
         : this.expression.children.length - 1;
 
+    var ctxIndex = after
+        ? this.children.indexOf(after)
+        : this.children.length - 1;
+
     this.expression.children.splice(index + 1, 0, child.expression);
+    this.children.splice(ctxIndex + 1, 0, child);
     child.parent = this;
     child.level = this.level + 1;
 };
@@ -41,7 +45,12 @@ Node.prototype.addChildBefore = function (child, before) {
         ? this.expression.children.indexOf(before.expression)
         : 0;
 
+    var ctxIndex = before
+        ? this.children.indexOf(before)
+        : 0;
+
     this.expression.children.splice(index, 0, child.expression);
+    this.children.splice(ctxIndex, 0, child);
     child.parent = this;
     child.level = this.level + 1;
 };

@@ -166,9 +166,7 @@
 
                                                 }
                                             })
-                                            .group('#operand', function (schema) {
-                                                schema.label('#groupPh', {text: 'PH'});
-                                            })
+                                            .group('#operand', angular.noop)
                                             .button('#remove', {
                                                 text: 'Remove',
                                                 isVisible: function (node, line) {
