@@ -3,11 +3,15 @@ var Line = require('./line');
 var ExpressionNode = require('../model/expression-node');
 var ExpressionGroup = require('../model/expression-group');
 var utility = require('../services/utils');
+var serialize = require('../services/serialization');
 
 module.exports = function (GroupSchema, undefined) {
    function NodeSchema() {
       this.plan = [];
       this.attributes = {};
+      this.serialization = {
+         serialize: serialize
+      }
    }
 
    NodeSchema.prototype.attr = function (key, value) {

@@ -30,6 +30,10 @@
 <div ng-controller="expressionsCtrl">
     <div eb-node="model.node">
     </div>
+
+    <pre>
+        {{ model.serialized | json }}
+    </pre>
 </div>
 
 <script src="../bower_components/angular/angular.js"></script>
@@ -52,7 +56,7 @@
             $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list',
                     '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
-                    '<option ng-repeat="option in expression.options">{{option}}</option>' +
+                    '<option ng-repeat="option in expression.options" >{{option}}</option>' +
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
 
@@ -89,8 +93,10 @@
             var schema =
                     builder.node('#logical-group', function (schema) {
                         schema.attr('placeholder', true)
+                                .attr('serialize', {'#logical-op-list': ['value']})
                                 .list('#logical-op-list', {
                                     options: ['AND', 'OR'],
+                                    promise: {},
                                     value: 'AND'
                                 })
                                 .button('#add-logical-group', {
@@ -167,7 +173,11 @@
                     });
 
             schema.apply(node);
-            $scope.model = {node: node};
+            $scope.model = {node: node, serialized: ''};
+
+            $scope.$watch('model.node', function () {
+                $scope.model.serialized = schema.serialization.serialize($scope.model.node);
+            }, true)
         }]);
 </script>
 

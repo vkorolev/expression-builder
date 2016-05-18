@@ -19,6 +19,7 @@ module.exports = function (angular) {
                   var patch = new Patch(node, line);
 
                   var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
+                  expression.type = settings.type;
                   var group = new ExpressionGroup();
                   group.id = id;
                   group.expressions.push(expression);

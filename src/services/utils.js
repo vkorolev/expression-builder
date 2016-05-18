@@ -1,8 +1,9 @@
 module.exports = {
-    indexOf: indexOf,
     asArray: asArray,
     clone: clone,
-    defaults: defaults
+    defaults: defaults,
+    indexOf: indexOf,
+    isFunction: isFunction
 };
 
 function indexOf(array, predicate) {
@@ -52,4 +53,8 @@ function defaults(dst) {
     }
 
     return result;
+}
+
+function isFunction(value) {
+    return typeof value === 'function';
 }
