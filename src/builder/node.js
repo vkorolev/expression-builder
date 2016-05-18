@@ -1,21 +1,25 @@
 var ExpressionNode = require('../model/expression-node');
+var SerializationService = require('../services/serialization');
+var utility = require('../services/utils');
 
 module.exports = Node;
 
-function Node(schema, node, parent, attributes) {
-    this.attributes = attributes || {};
+function Node(schema, expression, parent) {
+    this.attributes = {};
 
     this.schema = schema;
 
     this.parent = parent;
 
-    this.expression = node;
+    this.children = [];
+
+    this.expression = expression;
 
     this.level = parent ? parent.level + 1 : 0;
 }
 
 Node.prototype.attr = function (key, value) {
-    if (arguments.length == 2) {
+    if (value !== undefined) {
         this.attributes[key] = value;
     } else {
         return this.attributes[key];
@@ -68,4 +72,11 @@ Node.prototype.remove = function () {
 
     var index = this.parent.expression.children.indexOf(this.expression);
     this.parent.expression.children.splice(index, 1);
+
+    var ctxIndex = this.parent.children.indexOf(this);
+    this.parent.children.splice(ctxIndex, 1);
+};
+
+Node.prototype.serialize = function () {
+    return new SerializationService(this).serialize(this.expression);
 };

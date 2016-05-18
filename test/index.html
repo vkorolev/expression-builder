@@ -93,7 +93,9 @@
             var schema =
                     builder.node('#logical-group', function (schema) {
                         schema.attr('placeholder', true)
-                                .attr('serialize', {'#logical-op-list': ['value']})
+                                .attr('serialize', {
+                                    '#logical-op-list': ['value']
+                                })
                                 .list('#logical-op-list', {
                                     options: ['AND', 'OR'],
                                     promise: {},
@@ -116,6 +118,13 @@
                                 })
                                 .node('#condition-group', function (schema) {
                                     schema.attr('placeholder', true)
+                                            .attr('serialize', {
+                                                '#field': ['value'],
+                                                '#operator': ['value'],
+                                                '#equals': ['value'],
+                                                '#from': ['value'],
+                                                '#to': ['value']
+                                            })
                                             .list('#field', {
                                                 options: ['Field 1', 'Field 2', 'Field 3'],
                                                 value: 'Field 1',
@@ -149,7 +158,7 @@
                                                                         .label('#andLabel', {
                                                                             text: 'AND'
                                                                         })
-                                                                        .input('#to', {});
+                                                                        .input('#to', {value: ''});
                                                             });
                                                             break;
 
@@ -172,11 +181,11 @@
                                 })
                     });
 
-            schema.apply(node);
+            var nodeContext = schema.apply(node);
             $scope.model = {node: node, serialized: ''};
 
             $scope.$watch('model.node', function () {
-                $scope.model.serialized = schema.serialization.serialize($scope.model.node);
+                $scope.model.serialized = nodeContext.serialize();
             }, true)
         }]);
 </script>

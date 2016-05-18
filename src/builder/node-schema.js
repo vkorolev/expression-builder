@@ -2,87 +2,87 @@ var Node = require('./node');
 var Line = require('./line');
 var ExpressionNode = require('../model/expression-node');
 var ExpressionGroup = require('../model/expression-group');
-var utility = require('../services/utils');
-var serialize = require('../services/serialization');
+var SerializationService = require('../services/serialization');
 
 module.exports = function (GroupSchema, undefined) {
-   function NodeSchema() {
-      this.plan = [];
-      this.attributes = {};
-      this.serialization = {
-         serialize: serialize
-      }
-   }
+    function NodeSchema() {
+        var serializationService = new SerializationService(this);
 
-   NodeSchema.prototype.attr = function (key, value) {
-      if (value === undefined) {
-         return this.attributes[key];
-      } else {
-         this.attributes[key] = value;
-      }
-      return this;
-   };
+        this.plan = [];
+        this.serialization = {
+            serialize: serializationService
+        }
+    }
 
-   NodeSchema.prototype.apply = function (expressionNode) {
-      var nodeContext = new Node(this, expressionNode);
-      var lineContext = new Line(GroupSchema, nodeContext);
+    NodeSchema.prototype.attr = function (key, value) {
+        var addAttribute = function (expressionNode, nodeContext, line) {
+            nodeContext.attr(key, value);
+        };
 
-      this.plan.forEach(function (p) {
-         p(expressionNode, nodeContext, lineContext);
-      });
+        this.plan.push(addAttribute);
 
-      nodeContext.attributes = utility.clone(this.attributes);
+        return this;
+    };
 
-      return nodeContext;
-   };
+    NodeSchema.prototype.apply = function (expressionNode) {
+        var nodeContext = new Node(this, expressionNode);
+        var lineContext = new Line(GroupSchema, nodeContext);
 
-   NodeSchema.prototype.node = function (id, build) {
-      if (!build) {
-         throw new Error('Build function is not defined');
-      }
+        this.plan.forEach(function (p) {
+            p(expressionNode, nodeContext, lineContext);
+        });
 
-      var buildNode = function (expressionNode, nodeContext, line) {
-         var newNode = new ExpressionNode(id);
+        return nodeContext;
+    };
 
-         var schema = new NodeSchema();
-         build(schema);
+    NodeSchema.prototype.node = function (id, build) {
+        if (!build) {
+            throw new Error('Build function is not defined');
+        }
 
-         var newContext = schema.apply(newNode);
-         newContext.parent = nodeContext;
-         newContext.level = nodeContext.level + 1;
+        var buildNode = function (expressionNode, nodeContext, line) {
+            var newNode = new ExpressionNode(id);
 
-         expressionNode.children.push(newNode);
+            var schema = new NodeSchema();
+            build(schema);
 
-         return expressionNode;
-      };
+            var newContext = schema.apply(newNode);
+            nodeContext.children.push(newContext);
+            newContext.parent = nodeContext;
+            newContext.level = nodeContext.level + 1;
 
-      this.plan.push(buildNode);
+            expressionNode.children.push(newNode);
 
-      return this;
-   };
+            return expressionNode;
+        };
 
-   NodeSchema.prototype.group = function (id, build) {
-      if (!build) {
-         throw new Error('Build function is not defined');
-      }
+        this.plan.push(buildNode);
 
-      var buildGroup = function (expressionNode, nodeContext, line) {
-         var expressionGroup = new ExpressionGroup();
-         expressionGroup.id = id;
+        return this;
+    };
 
-         var schema = new GroupSchema(line);
-         build(schema);
-         schema.apply(expressionGroup);
+    NodeSchema.prototype.group = function (id, build) {
+        if (!build) {
+            throw new Error('Build function is not defined');
+        }
 
-         line.add(expressionGroup);
+        var buildGroup = function (expressionNode, nodeContext, line) {
+            var expressionGroup = new ExpressionGroup();
+            expressionGroup.id = id;
 
-         return expressionNode;
-      };
+            var schema = new GroupSchema(line);
+            build(schema);
+            schema.apply(expressionGroup);
 
-      this.plan.push(buildGroup);
+            line.add(expressionGroup);
 
-      return this;
-   };
+            return expressionNode;
+        };
 
-   return NodeSchema;
+        this.plan.push(buildGroup);
+
+        return this;
+    };
+
+    return NodeSchema;
 };

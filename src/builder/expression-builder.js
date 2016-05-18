@@ -19,7 +19,9 @@ module.exports = function (angular) {
                   var patch = new Patch(node, line);
 
                   var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
+                  expression.id = id;
                   expression.type = settings.type;
+
                   var group = new ExpressionGroup();
                   group.id = id;
                   group.expressions.push(expression);
@@ -51,6 +53,7 @@ module.exports = function (angular) {
 
                   var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
                   expression.id = id;
+                  expression.type = settings.type;
                   expression.template = settings.templateUrl;
                   line.add(expression);
 

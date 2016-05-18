@@ -1,34 +1,55 @@
-var utility = require('./utils');
+module.exports = SerializationService;
 
-module.exports = serialize;
+function SerializationService(nodeContext) {
+    function serialize() {
+        var groups = nodeContext.expression.expressions.map(serializeGroup);
 
-function serialize(node) {
-    return {
-        id: node.id,
-        children: node.children.map(serialize),
-        line: node.expressions.map(serializeGroup)
-    }
-}
-
-function serializeGroup(group) {
-    return {
-        id: group.id,
-        expressions: group.expressions.map(serializeExpression)
-    }
-}
-
-function serializeExpression(expression) {
-    var keys = Object.keys(expression),
-        length = keys.length,
-        result = {};
-
-    for (var i = 0; i < length; i++) {
-        var key = keys[i],
-            value = expression[key];
-        if (!utility.isFunction(value)) {
-            result[key] = value;
+        return {
+            id: nodeContext.expression.id,
+            children: nodeContext.children.map(function (child) {
+                return new SerializationService(child).serialize();
+            }),
+            line: groups.filter(function (group) {
+                return group.expressions.length;
+            })
         }
     }
 
-    return result;
+    function serializeGroup(group) {
+        return {
+            id: group.id,
+            expressions: group.expressions
+                .filter(serializable)
+                .map(serializeExpression)
+        }
+    }
+
+    function serializable(expression) {
+        var serializeAttr = nodeContext.attr('serialize');
+        if (!serializeAttr) {
+            return false;
+        }
+
+        var propertiesToSerialize = serializeAttr[expression.id];
+
+        return propertiesToSerialize && propertiesToSerialize.length;
+    }
+
+    function serializeExpression(expression) {
+        var serializeAttr = nodeContext.attr('serialize');
+
+        var result = {},
+            propertiesToSerialize = serializeAttr[expression.id];
+
+        for (var i = 0, length = propertiesToSerialize.length; i < length; i++) {
+            var prop = propertiesToSerialize[i];
+            result[prop] = expression[prop];
+        }
+        result.id = expression.id;
+        result.type = expression.type;
+
+        return result;
+    }
+
+    this.serialize = serialize;
 }
