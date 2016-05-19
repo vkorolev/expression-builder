@@ -28,7 +28,13 @@
 </h1>
 
 <div ng-controller="expressionsCtrl">
+    <h4>Main</h4>
     <div eb-node="model.node">
+    </div>
+
+    <h4>Replication</h4>
+    <div eb-node="model.deserialized.expression">
+
     </div>
 
     <pre>
@@ -43,12 +49,10 @@
 <script language="javascript">
     var app = angular.module('app', ['expression-builder']);
     app.controller('expressionsCtrl', [
-        'ExpressionNode',
         'ExpressionBuilder',
         '$scope',
         '$templateCache',
-        function (ExpressionNode,
-                  ExpressionBuilder,
+        function (ExpressionBuilder,
                   $scope,
                   $templateCache) {
 
@@ -59,9 +63,6 @@
                     '<option ng-repeat="option in expression.options" >{{option}}</option>' +
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
-
-
-            var node = new ExpressionNode();
 
             //TODO: add default config
             var builder =
@@ -179,12 +180,20 @@
                                 })
                     });
 
-            var nodeContext = schema.apply(node);
-            $scope.model = {node: node, serialized: ''};
+            $scope.model = {node: schema.apply(), serialized: '', deserialized: {}};
 
-            $scope.$watch('model.node', function () {
-                $scope.model.serialized = nodeContext.serialize();
-            }, true)
+            $scope.$watch(function () {
+                return JSON.stringify($scope.model.node, function (key, value) {
+                    if (key === 'parent' || key === 'node') {
+                        return;
+                    }
+                    return value;
+                })
+
+            }, function () {
+                $scope.model.serialized = $scope.model.node.serialize();
+//                $scope.model.deserialized = schema.deserialize($scope.model.serialized);
+            }, true);
         }]);
 </script>
 

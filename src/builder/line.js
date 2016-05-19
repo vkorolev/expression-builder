@@ -3,9 +3,9 @@ module.exports = Line;
 var ExpressionGroup = require('../model/expression-group'),
     utility = require('../services/utils');
 
-function Line(GroupSchema, node) {
-   this.node = node;
-   this.expressions = node.expression.expressions;
+function Line(GroupSchema) {
+   this.expressions = [];
+   this.node = null;
 
    this.add = function (expression) {
       this.expressions.push(expression);
@@ -19,7 +19,7 @@ function Line(GroupSchema, node) {
          throw Error('Expression not found');
       }
 
-      this.node.expression[index].expressions = [];
+      this.expressions[index].expressions = [];
    };
 
    this.clone = function (id) {
@@ -31,7 +31,7 @@ function Line(GroupSchema, node) {
          throw Error('Expression not found');
       }
 
-      return angular.copy(expression);
+      return angular.copy(this.expressions[index]);
    };
 
    this.put = function (id, build) {
@@ -43,7 +43,7 @@ function Line(GroupSchema, node) {
          throw Error('Expression not found');
       }
 
-      var schema = new GroupSchema(this),
+      var schema = new GroupSchema(this.node, this),
           group = new ExpressionGroup();
       build(schema);
       schema.apply(group);

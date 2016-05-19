@@ -1,13 +1,14 @@
 var nodeSchemaFactoryT = require('./node-schema'),
     groupSchemaFactoryT = require('./group-schema'),
-    Patch = require('./../services/patch'),
-    utility = require('./../services/utils');
+    Patch = require('../services/patch'),
+    utility = require('../services/utils'),
+    ExpressionGroup = require('../model/expression-group');
 
 module.exports = function (angular) {
    angular.module('expression-builder').factory('ExpressionBuilder', Factory);
-   Factory.$inject = ['ExpressionGroup'];
+   Factory.$inject = [];
 
-   function Factory(ExpressionGroup) {
+   function Factory() {
       function ExpressionBuilder(expressions, globalSettings) {
          var GroupSchema = groupSchemaFactoryT();
          var NodeSchema = nodeSchemaFactoryT(GroupSchema);
@@ -15,7 +16,7 @@ module.exports = function (angular) {
          expressions.forEach(function (settings) {
             var factory = function (id, parameters) {
 
-               var build = function (expressionNode, node, line) {
+               var build = function (node, line) {
                   var patch = new Patch(node, line);
 
                   var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
@@ -38,24 +39,25 @@ module.exports = function (angular) {
                      }
                   }
 
-                  return expressionNode;
+                  return node;
                };
 
                this.plan.push(build);
+               this.planMap[id] = build;
 
                return this;
             };
 
             var groupFactory = function (id, parameters) {
 
-               var build = function (expressionNode, node, line) {
+               var build = function (node, line, expressionGroup) {
                   var patch = new Patch(node, line);
 
                   var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
                   expression.id = id;
                   expression.type = settings.type;
                   expression.template = settings.templateUrl;
-                  line.add(expression);
+                  expressionGroup.expressions.push(expression);
 
                   var keys = Object.keys(expression);
 
@@ -67,7 +69,7 @@ module.exports = function (angular) {
                      }
                   }
 
-                  return expressionNode;
+                  return node;
                };
 
                this.plan.push(build);

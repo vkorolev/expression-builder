@@ -1,20 +1,16 @@
-var ExpressionNode = require('../model/expression-node');
 var SerializationService = require('../services/serialization');
 
 module.exports = Node;
 
-function Node(schema, expression, parent) {
+function Node(schema, line, parent) {
+    this.id = '';
     this.attributes = {};
-
     this.schema = schema;
-
     this.parent = parent;
-
     this.children = [];
-
-    this.expression = expression;
-
+    this.line = line;
     this.level = parent ? parent.level + 1 : 0;
+    line.node = this;
 }
 
 Node.prototype.attr = function (key, value) {
@@ -27,51 +23,40 @@ Node.prototype.attr = function (key, value) {
 
 Node.prototype.addChildAfter = function (child, after) {
     var index = after
-        ? this.expression.children.indexOf(after.expression)
-        : this.expression.children.length - 1;
-
-    var ctxIndex = after
         ? this.children.indexOf(after)
         : this.children.length - 1;
 
-    this.expression.children.splice(index + 1, 0, child.expression);
-    this.children.splice(ctxIndex + 1, 0, child);
+    this.children.splice(index + 1, 0, child);
     child.parent = this;
     child.level = this.level + 1;
 };
 
 Node.prototype.addChildBefore = function (child, before) {
     var index = before
-        ? this.expression.children.indexOf(before.expression)
-        : 0;
-
-    var ctxIndex = before
         ? this.children.indexOf(before)
         : 0;
 
-    this.expression.children.splice(index, 0, child.expression);
-    this.children.splice(ctxIndex, 0, child);
+    this.children.splice(index, 0, child);
     child.parent = this;
     child.level = this.level + 1;
 };
 
 Node.prototype.addAfter = function (child) {
     if (!this.parent) {
-        throw Error('Root element can\'t be removed');
+        throw Error('Can\'t add after root');
     }
     this.parent.addChildAfter(child, this);
 };
 
 Node.prototype.addBefore = function (child) {
     if (!this.parent) {
-        throw Error('Root element can\'t be removed');
+        throw Error('Can\'t add before root');
     }
     this.parent.addChildBefore(child, this);
 };
 
 Node.prototype.clone = function () {
-    var newNode = new ExpressionNode();
-    return this.schema.apply(newNode);
+    return this.schema.apply();
 };
 
 Node.prototype.remove = function () {
@@ -79,13 +64,33 @@ Node.prototype.remove = function () {
         throw Error('Root element can\'t be removed');
     }
 
-    var index = this.parent.expression.children.indexOf(this.expression);
-    this.parent.expression.children.splice(index, 1);
-
-    var ctxIndex = this.parent.children.indexOf(this);
-    this.parent.children.splice(ctxIndex, 1);
+    var index = this.parent.children.indexOf(this);
+    this.parent.children.splice(index, 1);
 };
 
 Node.prototype.serialize = function () {
-    return new SerializationService(this).serialize(this.expression);
+    return new SerializationService(this).serialize(this);
+};
+
+Node.prototype.toString = function (ident) {
+    ident = ident || 0;
+    return Array(ident).join('-') + this.expression.id + ' ' + this.level + '\n' +
+        this.children
+            .map(function (child) {
+                return child.toString(ident + 1);
+            })
+            .join('\n');
+};
+
+Node.prototype.toTraceString = function (ident) {
+    if (null != this.parent) {
+        var parent = this.parent;
+        while (null !== parent.parent) {
+            parent = parent.parent
+        }
+
+        return parent.toString();
+    }
+
+    return this.toString();
 };

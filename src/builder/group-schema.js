@@ -1,24 +1,15 @@
-var ExpressionNode = require('../model/expression-node');
-
 module.exports = function () {
-   function GroupSchema(line) {
+   function GroupSchema(node, line) {
       this.plan = [];
       this.line = line;
+      this.node = node;
    }
 
    GroupSchema.prototype.apply = function (expressionGroup) {
-      var self = this,
-          fakeNode = new ExpressionNode();
-
+      var self = this;
       this.plan.forEach(function (p) {
-         p(fakeNode, self.line.node, self.line);
+         p(self.node, self.line, expressionGroup);
       });
-
-      var count = this.plan.length,
-          from = this.line.expressions.length - count;
-
-      expressionGroup.expressions = self.line.expressions.splice(from, count);
-      fakeNode.expressions = [];
    };
 
    return GroupSchema;

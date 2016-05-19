@@ -1,12 +1,17 @@
+var utility = require('./utils');
+
 module.exports = SerializationService;
 
-function SerializationService(nodeContext) {
+function SerializationService(node) {
     function serialize() {
-        var groups = nodeContext.expression.expressions.map(serializeGroup);
+        var groups = node.line.expressions.map(serializeGroup);
+        var attrs = utility.clone(node.attributes);
+        delete attrs.serialize;
 
         return {
-            id: nodeContext.expression.id,
-            children: nodeContext.children.map(function (child) {
+            id: node.id,
+            attributes: attrs,
+            children: node.children.map(function (child) {
                 return new SerializationService(child).serialize();
             }),
             line: groups.filter(function (group) {
@@ -25,7 +30,7 @@ function SerializationService(nodeContext) {
     }
 
     function serializable(expression) {
-        var serializeAttr = nodeContext.attr('serialize');
+        var serializeAttr = node.attr('serialize');
         if (!serializeAttr) {
             return false;
         }
@@ -36,7 +41,7 @@ function SerializationService(nodeContext) {
     }
 
     function serializeExpression(expression) {
-        var serializeAttr = nodeContext.attr('serialize');
+        var serializeAttr = node.attr('serialize');
 
         var result = {},
             propertiesToSerialize = serializeAttr[expression.id];
