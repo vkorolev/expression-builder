@@ -2,15 +2,13 @@ var SerializationService = require('../services/serialization');
 
 module.exports = Node;
 
-function Node(schema, line, parent) {
-    this.id = '';
+function Node(id, schema, parent) {
+    this.id = id;
     this.attributes = {};
     this.schema = schema;
     this.parent = parent;
     this.children = [];
-    this.line = line;
     this.level = parent ? parent.level + 1 : 0;
-    line.node = this;
 }
 
 Node.prototype.attr = function (key, value) {
@@ -56,7 +54,8 @@ Node.prototype.addBefore = function (child) {
 };
 
 Node.prototype.clone = function () {
-    return this.schema.apply();
+    var node = new Node(this.id, this.schema);
+    return this.schema.apply(node);
 };
 
 Node.prototype.remove = function () {
@@ -67,6 +66,15 @@ Node.prototype.remove = function () {
     var index = this.parent.children.indexOf(this);
     this.parent.children.splice(index, 1);
 };
+
+Node.prototype.clear = function () {
+    this.children.forEach(function (child) {
+        child.parent = null;
+    });
+
+    this.children = [];
+};
+
 
 Node.prototype.serialize = function () {
     return new SerializationService(this).serialize(this);

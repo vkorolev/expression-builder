@@ -33,7 +33,7 @@
     </div>
 
     <h4>Replication</h4>
-    <div eb-node="model.deserialized.expression">
+    <div eb-node="model.deserialized">
 
     </div>
 
@@ -64,8 +64,7 @@
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
 
-            //TODO: add default config
-            var builder =
+            var schema =
                     new ExpressionBuilder([
                         {
                             type: 'label',
@@ -92,7 +91,7 @@
                     });
 
             var schema =
-                    builder.node('#logical-group', function (schema) {
+                    schema.node('#logical-group', function (schema) {
                         schema.attr('placeholder', true)
                                 .attr('serialize', {
                                     '#logical-op-list': ['value']
@@ -126,6 +125,7 @@
                                                 '#from': ['value'],
                                                 '#to': ['value']
                                             })
+//                                            .watch('#operator', {'value': 'change'})
                                             .list('#field', {
                                                 options: ['Field 1', 'Field 2', 'Field 3'],
                                                 value: 'Field 1',
@@ -149,12 +149,12 @@
                                                     node.attr('placeholder', false);
                                                     switch (this.value) {
                                                         case 'EQUALS':
-                                                            line.put('#operand', function (group) {
+                                                            line.put('#operand', node, function (group) {
                                                                 group.input('#equals', {value: ''});
                                                             });
                                                             break;
                                                         case 'BETWEEN':
-                                                            line.put('#operand', function (group) {
+                                                            line.put('#operand', node, function (group) {
                                                                 group.input('#from', {})
                                                                         .label('#andLabel', {
                                                                             text: 'AND'
@@ -184,15 +184,17 @@
 
             $scope.$watch(function () {
                 return JSON.stringify($scope.model.node, function (key, value) {
-                    if (key === 'parent' || key === 'node') {
+                    if (key === 'parent' || key === 'node' || key === 'schemaMap') {
                         return;
                     }
                     return value;
                 })
 
-            }, function () {
-                $scope.model.serialized = $scope.model.node.serialize();
-//                $scope.model.deserialized = schema.deserialize($scope.model.serialized);
+            }, function (v1 ,v2) {
+                if(v1 !== v2) {
+                    $scope.model.serialized = $scope.model.node.serialize();
+                    $scope.model.deserialized = schema.deserialize($scope.model.serialized);
+                }
             }, true);
         }]);
 </script>

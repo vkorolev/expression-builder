@@ -1,89 +1,87 @@
 var nodeSchemaFactoryT = require('./node-schema'),
     groupSchemaFactoryT = require('./group-schema'),
-    Patch = require('../services/patch'),
+    patch = require('../services/patch'),
     utility = require('../services/utils'),
     ExpressionGroup = require('../model/expression-group');
 
 module.exports = function (angular) {
-   angular.module('expression-builder').factory('ExpressionBuilder', Factory);
-   Factory.$inject = [];
+    angular.module('expression-builder').factory('ExpressionBuilder', Factory);
+    Factory.$inject = [];
 
-   function Factory() {
-      function ExpressionBuilder(expressions, globalSettings) {
-         var GroupSchema = groupSchemaFactoryT();
-         var NodeSchema = nodeSchemaFactoryT(GroupSchema);
+    function Factory() {
+        function ExpressionBuilder(expressions, globalSettings) {
+            var GroupSchema = groupSchemaFactoryT();
+            var NodeSchema = nodeSchemaFactoryT(GroupSchema);
 
-         expressions.forEach(function (settings) {
-            var factory = function (id, parameters) {
+            expressions.forEach(function (settings) {
+                var factory = function (id, parameters) {
 
-               var build = function (node, line) {
-                  var patch = new Patch(node, line);
+                    var build = function (node, line) {
+                        var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
+                        expression.id = id;
+                        expression.type = settings.type;
 
-                  var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
-                  expression.id = id;
-                  expression.type = settings.type;
+                        var group = new ExpressionGroup();
+                        group.id = id;
+                        group.expressions.push(expression);
+                        expression.template = settings.templateUrl;
+                        line.add(group);
 
-                  var group = new ExpressionGroup();
-                  group.id = id;
-                  group.expressions.push(expression);
-                  expression.template = settings.templateUrl;
-                  line.add(group);
+                        patch.methodsOf(expression).with(node, line);
 
-                  var keys = Object.keys(expression);
+                        var keys = Object.keys(expression);
 
-                  for (var i = 0, length = keys.length; i < length; i++) {
-                     var key = keys[i];
+                        keys.forEach(function (key) {
+                            var sourceFunction = expression[key];
 
-                     if (angular.isFunction(expression[key])) {
-                        patch.context(expression, key);
-                     }
-                  }
+                            if (utility.isFunction(sourceFunction)) {
+                                expression[key] = function () {
+                                 //   if(!line.immutable) {
+                                        expression.method = expression.method || [];
+                                        if (expression.method.indexOf(key) < 0) {
+                                            expression.method.push(key);
+                                        }
+                                   // }
+                                    return sourceFunction();
+                                };
+                            }
+                        });
 
-                  return node;
-               };
+                        return node;
+                    };
 
-               this.plan.push(build);
-               this.planMap[id] = build;
+                    this.plan.push(build);
+                    this.planMap[id] = build;
 
-               return this;
-            };
+                    return this;
+                };
 
-            var groupFactory = function (id, parameters) {
+                var groupFactory = function (id, parameters) {
 
-               var build = function (node, line, expressionGroup) {
-                  var patch = new Patch(node, line);
+                    var build = function (node, line, expressionGroup) {
+                        var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
+                        expression.id = id;
+                        expression.type = settings.type;
+                        expression.template = settings.templateUrl;
+                        expressionGroup.expressions.push(expression);
 
-                  var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
-                  expression.id = id;
-                  expression.type = settings.type;
-                  expression.template = settings.templateUrl;
-                  expressionGroup.expressions.push(expression);
+                        patch.methodsOf(expression).with(node, line);
 
-                  var keys = Object.keys(expression);
+                        return node;
+                    };
 
-                  for (var i = 0, length = keys.length; i < length; i++) {
-                     var key = keys[i];
+                    this.plan.push(build);
 
-                     if (angular.isFunction(expression[key])) {
-                        patch.context(expression, key);
-                     }
-                  }
+                    return this;
+                };
 
-                  return node;
-               };
+                NodeSchema.prototype[settings.type] = factory;
+                GroupSchema.prototype[settings.type] = groupFactory;
+            });
 
-               this.plan.push(build);
+            return new NodeSchema();
+        }
 
-               return this;
-            };
-
-            NodeSchema.prototype[settings.type] = factory;
-            GroupSchema.prototype[settings.type] = groupFactory;
-         });
-
-         return new NodeSchema();
-      }
-
-      return ExpressionBuilder;
-   }
+        return ExpressionBuilder;
+    }
 };

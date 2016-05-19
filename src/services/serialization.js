@@ -52,6 +52,7 @@ function SerializationService(node) {
         }
         result.id = expression.id;
         result.type = expression.type;
+        result.method = expression.method;
 
         return result;
     }

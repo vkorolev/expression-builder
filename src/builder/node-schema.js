@@ -4,17 +4,25 @@ var ExpressionGroup = require('../model/expression-group');
 var DeserializationService = require('../services/deserialization');
 
 module.exports = function (GroupSchema, undefined) {
-    function NodeSchema() {
+    function NodeSchema(map) {
         var self = this;
         var deserializationService = new DeserializationService(self, GroupSchema);
 
         this.plan = [];
         this.planMap = {};
-        this.schemaMap = {};
+        this.schemaMap = map || {};
         this.deserialize = function (data) {
-            return deserializationService.deserialize(data, self);
+            return deserializationService.deserialize(data);
         };
     }
+
+    NodeSchema.prototype.clone = function () {
+        var schema = new NodeSchema(this.map);
+        schema.plan = this.plan;
+        schema.planMap = this.planMap;
+        return schema;
+
+    };
 
     NodeSchema.prototype.attr = function (key, value) {
         var addAttribute = function (node, line) {
@@ -26,9 +34,11 @@ module.exports = function (GroupSchema, undefined) {
         return this;
     };
 
-    NodeSchema.prototype.apply = function () {
+    NodeSchema.prototype.apply = function (node) {
+        node = node || new Node('#root', this);
+
         var line = new Line(GroupSchema);
-        var node = new Node(this, line);
+        node.line = line;
 
         this.plan.forEach(function (p) {
             p(node, line);
@@ -45,16 +55,12 @@ module.exports = function (GroupSchema, undefined) {
         }
 
         var buildNode = function (node, line) {
-            var schema = new NodeSchema();
+            var schema = new NodeSchema(self.schemaMap);
             build(schema);
 
-            var newNode = schema.apply();
-            newNode.id = id;
-            newNode.parent = node;
-            newNode.level = node.level + 1;
-
-            node.children.push(newNode);
-
+            var newNode = new Node(id, schema, node);
+            schema.apply(newNode);
+            node.addChildAfter(newNode);
             self.schemaMap[id] = schema;
 
             return node;
@@ -77,7 +83,6 @@ module.exports = function (GroupSchema, undefined) {
             var schema = new GroupSchema(node, line);
             build(schema);
             schema.apply(expressionGroup);
-
             line.add(expressionGroup);
 
             return node;

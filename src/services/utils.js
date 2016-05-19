@@ -3,7 +3,8 @@ module.exports = {
     clone: clone,
     defaults: defaults,
     indexOf: indexOf,
-    isFunction: isFunction
+    isFunction: isFunction,
+    override: override
 };
 
 function indexOf(array, predicate) {
@@ -57,4 +58,16 @@ function defaults(dst) {
 
 function isFunction(value) {
     return typeof value === 'function';
+}
+
+function override(dst, src) {
+    var keys = Object.keys(src),
+        length = keys.length;
+
+    for(var i = 0; i < length; i++) {
+        var key = keys[i];
+        dst[key] = src[key];
+    }
+
+    return dst;
 }
