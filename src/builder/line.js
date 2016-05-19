@@ -1,64 +1,52 @@
 module.exports = Line;
 
 var ExpressionGroup = require('../model/expression-group'),
-    utility = require('../services/utils');
+	 utility = require('../services/utils');
 
 function Line(GroupSchema) {
-    this.expressions = [];
-    this.immutable = true;
+	this.expressions = [];
 
-    this.add = function (expression) {
-        this.expressions.push(expression);
-    };
+	// TODO add decorator for muttable methods instead of trigger
+	this.immutable = true;
 
-    this.clone = function (id) {
-        var index = utility.indexOf(this.expressions, function (item) {
-            return item.id === id;
-        });
+	var getIndex = (function (id) {
+		var index = utility.indexOf(this.expressions, function (item) {
+			return item.id === id;
+		});
 
-        if (index < 0) {
-            throw Error('Expression not found');
-        }
+		if (index < 0) {
+			throw Error('Expression ' + id + ' not found');
+		}
 
-        return angular.copy(this.expressions[index]);
-    };
+		return index;
+	}).bind(this);
 
-    this.get = function (id) {
-        var index = utility.indexOf(this.expressions, function (item) {
-            return item.id === id;
-        });
+	this.add = function (expression) {
+		this.expressions.push(expression);
+	};
 
-        return this.expressions[index];
-    };
+	this.clone = function (id) {
+		return angular.copy(this.get(id));
+	};
 
-    this.put = function (id, node, build) {
-        this.immutable =  false;
-        
-        var index = utility.indexOf(this.expressions, function (item) {
-            return item.id === id;
-        });
+	this.get = function (id) {
+		return this.expressions[getIndex(id)];
+	};
 
-        if (index < 0) {
-            throw Error('Expression not found');
-        }
+	this.put = function (id, node, build) {
+		var index = getIndex(id),
+			 schema = new GroupSchema(node, this),
+			 group = new ExpressionGroup();
 
-        var schema = new GroupSchema(node, this),
-            group = new ExpressionGroup();
+		build(schema);
+		schema.apply(group);
+		group.id = id;
+		this.expressions.splice(index, 1, group)
+		this.immutable = false;
+	};
 
-        build(schema);
-        schema.apply(group);
-        group.id = id;
-        this.expressions.splice(index, 1, group)
-    };
-
-    this.remove = function (id) {
-        var index = utility.indexOf(this.expressions, function (item) {
-            return item.id === id;
-        });
-        if (index < 0) {
-            throw Error('Expression not found');
-        }
-
-        this.expressions[index].expressions = [];
-    };
+	this.remove = function (id) {
+		var index = getIndex(id);
+		this.expressions[index].expressions = [];
+	};
 }
