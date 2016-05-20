@@ -52,9 +52,11 @@
         'ExpressionBuilder',
         '$scope',
         '$templateCache',
+        'expressionBuilderSerializer',
         function (ExpressionBuilder,
                   $scope,
-                  $templateCache) {
+                  $templateCache,
+                  serializer) {
 
             $templateCache.put('label', '<label ng-if="expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
             $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
@@ -192,8 +194,8 @@
 
             }, function (v1, v2) {
                 if (v1 !== v2) {
-                    $scope.model.serialized = schema.serialize($scope.model.node);
-                    $scope.model.deserialized = schema.deserialize($scope.model.serialized);
+                    $scope.model.serialized = serializer.serialize($scope.model.node);
+                    $scope.model.deserialized = serializer.deserialize(schema, $scope.model.serialized);
                 }
             }, true);
         }]);

@@ -1,23 +1,13 @@
-var Node = require('./node');
-var Line = require('./line');
-var ExpressionGroup = require('../model/expression-group');
-var DeserializationService = require('../services/deserialization');
-var SerializationService = require('../services/serialization');
+var Node = require('./node'),
+    Line = require('./line'),
+    ExpressionGroup = require('../model/expression-group');
 
 module.exports = function (GroupSchema, undefined) {
     function NodeSchema(map) {
-        var self = this;
-
         this.plan = [];
         this.planMap = {};
         this.schemaMap = map || {};
-        this.deserialize = function (data) {
-            return new DeserializationService(self, GroupSchema)
-                .deserialize(data);
-        };
-        this.serialize = function (node) {
-            return new SerializationService(node).serialize();
-        };
+        this.GroupSchema = GroupSchema;
     }
 
     NodeSchema.prototype.clone = function () {
