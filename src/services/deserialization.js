@@ -31,7 +31,8 @@ function DeserializationService(schema) {
             node.clear();
         }
 
-        node.attributes = data.attributes;
+        utility.override(node.attributes, data.attributes);
+
         deserializeLine(node, node.line, data.line);
 
         var children = data.children,
