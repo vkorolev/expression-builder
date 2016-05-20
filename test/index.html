@@ -125,7 +125,7 @@
                                                 '#from': ['value'],
                                                 '#to': ['value']
                                             })
-//                                            .watch('#operator', {'value': 'change'})
+                                            //                                            .watch('#operator', {'value': 'change'})
                                             .list('#field', {
                                                 options: ['Field 1', 'Field 2', 'Field 3'],
                                                 value: 'Field 1',
@@ -190,9 +190,9 @@
                     return value;
                 })
 
-            }, function (v1 ,v2) {
-                if(v1 !== v2) {
-                    $scope.model.serialized = $scope.model.node.serialize();
+            }, function (v1, v2) {
+                if (v1 !== v2) {
+                    $scope.model.serialized = schema.serialize($scope.model.node);
                     $scope.model.deserialized = schema.deserialize($scope.model.serialized);
                 }
             }, true);
