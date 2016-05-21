@@ -5,6 +5,10 @@
             list-style-type: none;
             padding: 10px;
         }
+        
+        ul.placeholder {
+            border: 1px grey dashed;
+        }
 
         ul.expression-builder-group {
             list-style-type: none;
@@ -127,7 +131,12 @@
                                                 '#from': ['value'],
                                                 '#to': ['value']
                                             })
-                                            //                                            .watch('#operator', {'value': 'change'})
+                                            .attr('class', {
+                                                'condition-group': true,
+                                                'placeholder': function (node) {
+                                                    return node.attr('placeholder');
+                                                }
+                                            })
                                             .list('#field', {
                                                 options: ['Field 1', 'Field 2', 'Field 3'],
                                                 value: 'Field 1',
