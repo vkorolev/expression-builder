@@ -1,4 +1,4 @@
-<ul class="expression-builder-node" ng-class="{ placeholder: node.placeholder }">
+<ul class="expression-builder-node" eb-class="node.attr('class')">
     <li ng-repeat="expression in node.line.expressions"
         eb-expression="expression"
         class="expression-builder-expression">

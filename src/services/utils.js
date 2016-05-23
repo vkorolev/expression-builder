@@ -3,7 +3,9 @@ module.exports = {
     clone: clone,
     defaults: defaults,
     indexOf: indexOf,
+    isArray: Array.isArray,
     isFunction: isFunction,
+    isObject: isObject,
     override: override
 };
 
@@ -58,6 +60,10 @@ function defaults(dst) {
 
 function isFunction(value) {
     return typeof value === 'function';
+}
+
+function isObject(value) {
+    return value !== null && typeof value === 'object';
 }
 
 function override(dst, src) {

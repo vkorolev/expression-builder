@@ -1,4 +1,4 @@
-var SerializationService = require('../services/serialization');
+var utility = require('../services/utils');
 
 module.exports = Node;
 
@@ -17,6 +17,9 @@ Node.prototype.attr = function (key, value) {
     } else {
         return this.attributes[key];
     }
+};
+
+Node.prototype.classes = function () { 
 };
 
 Node.prototype.addChildAfter = function (child, after) {
@@ -73,11 +76,6 @@ Node.prototype.clear = function () {
     });
 
     this.children = [];
-};
-
-
-Node.prototype.serialize = function () {
-    return new SerializationService(this).serialize(this);
 };
 
 Node.prototype.toString = function (ident) {

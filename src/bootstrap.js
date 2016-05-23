@@ -5,6 +5,7 @@
    require('./builder/expression-builder')(angular);
    require('./model/eb-expression')(angular);
    require('./model/eb-node')(angular);
+   require('./model/eb-class')(angular);
 
    var SerializationService = require('./services/serialization'),
        DeserializationService = require('./services/deserialization');
