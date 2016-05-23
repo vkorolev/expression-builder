@@ -13,29 +13,30 @@ module.exports = function (angular) {
                     classes = [];
 
                 var unbind = scope.$watch(evaluateClassObject, function (value) {
-                    var classesToRemove = classes.join(' ');
-
-                    classes = [];
-
-                    setClasses(value);
-
-                    element.removeClass(classesToRemove);
-                    element.addClass(classes.join(' '));
-                }, true);
-
-                scope.$on('$destroy', function () {
-                    unbind();
+                    if(value) {
+                        var oldClasses = classes.join(' ');
+                        var newClasses = fetchClasses(value);
+                        if (oldClasses !== newClasses) {
+                            classes = newClasses;
+                            element.removeClass(oldClasses);
+                            element.addClass(classes.join(' '));
+                        }
+                    }
+                    else{
+                        element.removeClass(classes);
+                        classes = [];
+                    }
                 });
 
                 function evaluateClassObject() {
-                    var classObject = getter(scope),
-                        result = {};
+                    var classObject = getter(scope);
 
                     if (!classObject) {
-                        return result;
+                        return null;
                     }
 
                     var keys = Object.keys(classObject),
+                        result = {},
                         length = keys.length;
 
                     for (var i = 0; i < length; i++) {
@@ -51,9 +52,10 @@ module.exports = function (angular) {
                     return result;
                 }
 
-                function setClasses(object) {
+                function fetchClasses(object) {
                     var keys = Object.keys(object),
-                        length = keys.length;
+                        length = keys.length,
+                        classes = [];
 
                     for (var i = 0; i < length; i++) {
                         var key = keys[i];
@@ -61,7 +63,14 @@ module.exports = function (angular) {
                             classes.push(key);
                         }
                     }
+
+                    return classes;
                 }
+
+                scope.$on('$destroy', function () {
+                    unbind();
+                });
+
             }
         }
     }
