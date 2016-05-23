@@ -10,21 +10,21 @@ module.exports = function (angular) {
             restrict: 'A',
             link: function (scope, element, attr) {
                 var getter = $parse(attr.ebClass),
-                    classes = [];
+                    classes = '';
 
                 var unbind = scope.$watch(evaluateClassObject, function (value) {
                     if(value) {
-                        var oldClasses = classes.join(' ');
-                        var newClasses = fetchClasses(value);
+                        var oldClasses = classes;
+                        var newClasses = fetchClasses(value).join(' ');
                         if (oldClasses !== newClasses) {
                             classes = newClasses;
                             element.removeClass(oldClasses);
-                            element.addClass(classes.join(' '));
+                            element.addClass(classes);
                         }
                     }
                     else{
                         element.removeClass(classes);
-                        classes = [];
+                        classes = '';
                     }
                 });
 
