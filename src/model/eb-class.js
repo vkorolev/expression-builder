@@ -26,7 +26,7 @@ module.exports = function (angular) {
                         element.removeClass(classes);
                         classes = '';
                     }
-                });
+                }, true);
 
                 function evaluateClassObject() {
                     var classObject = getter(scope);
