@@ -8,9 +8,11 @@
    require('./model/eb-class')(angular);
 
    var SerializationService = require('./services/serialization'),
-       DeserializationService = require('./services/deserialization');
+       DeserializationService = require('./services/deserialization'),
+       TraverseService = require('./services/traverse');
 
-   module.factory('expressionBuilderSerializer', [function () {
+   module
+       .factory('expressionBuilderSerializer', [function () {
       return {
          serialize: function (node) {
             return new SerializationService(node).serialize();
@@ -19,6 +21,7 @@
             return new DeserializationService(schema).deserialize(data);
          }
       }
-   }]);
+   }])
+       .service('expressionBuilderTraverse', [TraverseService]);
 
 })(angular);
