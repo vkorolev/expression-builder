@@ -50,11 +50,9 @@ describe('traverse service', function () {
                 ]
             };
             var result = traverse.depth(node)(function (memo, e, line, node) {
-                console.log('Reduction id: ' + node.id);
                 memo.push(node.id);
                 return memo;
             }, []);
-            console.log('result: ' + JSON.stringify(result));
             expect(result).to.be.deep.equal([0, 1, 2, 3, 4]);
         });
 
@@ -87,11 +85,9 @@ describe('traverse service', function () {
                 ]
             };
             var result = traverse.depth(node)(function (memo, e, line, node) {
-                console.log('Reduction id: ' + node.id);
                 memo.push(node.id);
                 return memo;
             }, []);
-            console.log('result: ' + JSON.stringify(result));
             expect(result).to.be.deep.equal([2, 4]);
         });
     });

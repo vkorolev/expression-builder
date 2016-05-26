@@ -5,7 +5,7 @@
             list-style-type: none;
             padding: 10px;
         }
-        
+
         ul.placeholder {
             border: 1px grey dashed;
         }
@@ -47,8 +47,8 @@
 </div>
 
 <script src="../bower_components/angular/angular.js"></script>
-<script src="../dist/scripts.js"></script>
-<script src="../dist/templates.js"></script>
+<script src="../dist/expression-builder.js"></script>
+
 
 <script language="javascript">
     var app = angular.module('app', ['expression-builder']);
@@ -138,7 +138,18 @@
                                                 }
                                             })
                                             .list('#field', {
-                                                options: ['Field 1', 'Field 2', 'Field 3'],
+                                                $watch: {
+                                                    value: function (newVal, oldVal) {
+                                                        if (newVal === 'placeholder') {
+                                                            this.classes.push('placeholder');
+                                                        } else {
+                                                            var index = this.classes.indexOf('placeholder');
+                                                            this.classes.splice(index, 1);
+                                                        }
+                                                    }
+                                                },
+                                                classes: [],
+                                                options: ['Field 1', 'Field 2', 'Field 3', 'placeholder'],
                                                 value: 'Field 1',
                                                 change: function (node, line) {
                                                     if (node.attr('placeholder')) {
@@ -204,7 +215,7 @@
             }, function (v1, v2) {
                 if (v1 !== v2) {
                     $scope.model.serialized = serializer.serialize($scope.model.node);
-                    $scope.model.deserialized = serializer.deserialize(schema, $scope.model.serialized);
+//                    $scope.model.deserialized = serializer.deserialize(schema, $scope.model.serialized);
                 }
             }, true);
         }]);
