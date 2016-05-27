@@ -1,4 +1,5 @@
-var utils = require('../services/utils');
+var utils = require('../services/utils'),
+    evaluateFactory = require('../services/evaluateFactory');
 
 module.exports = function (angular) {
     angular.module('expression-builder').directive('ebClass', Directive);
@@ -10,9 +11,12 @@ module.exports = function (angular) {
             restrict: 'A',
             link: function (scope, element, attr) {
                 var getter = $parse(attr.ebClass),
-                    classes = '';
+                    classes = '',
+                    evaluate = evaluateFactory(null, [scope.node]);
 
-                var unbind = scope.$watch(evaluateClassObject, function (value) {
+                scope.$watch(function () {
+                    return evaluate(getter(scope));
+                }, function (value) {
                     if(value) {
                         var oldClasses = classes;
                         var newClasses = fetchClasses(value).join(' ');
@@ -28,30 +32,6 @@ module.exports = function (angular) {
                     }
                 }, true);
 
-                function evaluateClassObject() {
-                    var classObject = getter(scope);
-
-                    if (!classObject) {
-                        return null;
-                    }
-
-                    var keys = Object.keys(classObject),
-                        result = {},
-                        length = keys.length;
-
-                    for (var i = 0; i < length; i++) {
-                        var key = keys[i],
-                            value = classObject[key];
-                        if (utils.isFunction(value)) {
-                            result[key] = value(scope.node);
-                        } else {
-                            result[key] = value;
-                        }
-                    }
-
-                    return result;
-                }
-
                 function fetchClasses(object) {
                     var keys = Object.keys(object),
                         length = keys.length,
@@ -66,11 +46,6 @@ module.exports = function (angular) {
 
                     return classes;
                 }
-
-                scope.$on('$destroy', function () {
-                    unbind();
-                });
-
             }
         }
     }
