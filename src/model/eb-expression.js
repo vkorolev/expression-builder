@@ -1,3 +1,5 @@
+var evaluateFactory = require('../services/evaluateFactory');
+
 module.exports = function (angular) {
 
 	angular.module('expression-builder').directive('ebExpression', Directive);
@@ -8,10 +10,12 @@ module.exports = function (angular) {
 		return {
 			restrict: 'A',
 			scope: {
-				expression: '=ebExpression'
+				expression: '=ebExpression',
+				node: '='
 			},
 			link: function (scope, element, attr) {
 				var $watch = scope.expression.$watch = scope.expression.$watch || {};
+				var evaluate = evaluateFactory(scope.expression, [scope.node]);
 
 				var keys = Object.keys($watch),
 					length = keys.length;
@@ -20,14 +24,20 @@ module.exports = function (angular) {
 					var key = keys[i],
 						watch = scope.expression.$watch[key];
 
-					scope.$watch('expression.' + key, function (newVal, oldVal) {
-						watch.apply(scope.expression, [newVal, oldVal]);
-					});
+					watchFactory(scope.expression[key], watch);
 				}
 
 				var template = $templateCache.get(scope.expression.template);
 				var expression = $compile(template)(scope);
 				element.append(expression);
+
+				function watchFactory (watchExpression, handler) {
+					scope.$watch(function () {
+						return evaluate(watchExpression);
+					}, function (newVal, oldVal) {
+						handler.apply(scope.expression, [newVal, oldVal]);
+					}, true);
+				}
 			}
 		}
 	}

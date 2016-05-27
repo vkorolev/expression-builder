@@ -56,7 +56,7 @@ gulp.task('test', function (done) {
 });
 
 gulp.task('default', function () {
-    gulp.run('browserify:debug', 'templates');
+    gulp.run('browserify:debug', 'templates', 'concat');
 
     gulp.watch('src/**/*.js', function () {
         gulp.run('browserify:debug');

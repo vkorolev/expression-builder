@@ -94,4 +94,21 @@ describe('eb-expression directive', function () {
 		scope.$digest();
 		expect(element.children()[0].innerText).to.be.equal('new');
 	});
+
+	it('should bind expression value', function () {
+		var scope = $rootScope.$new();
+
+		scope.expression = {
+			value: 'Hello',
+			template: 'template.html'
+		};
+
+		$templateCache.put('template.html', '<div>{{ expression.value }}</div>');
+
+		var element = $compile('<div eb-expression="expression"></div>')(scope);
+		scope.$digest();
+		expect(element.children()[0].className.split(' ')).to.be.deep.equal(['ng-binding', 'ng-scope']);
+		expect(element.children()[0].innerText).to.be.equal('Hello');
+	});
+
 });

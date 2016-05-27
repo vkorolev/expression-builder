@@ -139,13 +139,13 @@
                                             })
                                             .list('#field', {
                                                 $watch: {
-                                                    value: function (newVal, oldVal) {
-                                                        if (newVal === 'placeholder') {
-                                                            this.classes.push('placeholder');
-                                                        } else {
-                                                            var index = this.classes.indexOf('placeholder');
-                                                            this.classes.splice(index, 1);
-                                                        }
+                                                    classList: function (newVal, oldVal) {
+                                                        this.classes = newVal;
+                                                    }
+                                                },
+                                                classList: {
+                                                    'test': function (node, line) {
+                                                        return node.attr('placeholder');
                                                     }
                                                 },
                                                 classes: [],
@@ -156,8 +156,7 @@
                                                         node.addAfter(node.clone());
                                                     }
                                                     node.attr('placeholder', false);
-                                                },
-                                                classes: [{bold: !schema.attr('placeholder')}]
+                                                }
                                             })
                                             .list('#operator', {
                                                 options: ['BETWEEN', 'EQUALS'],
