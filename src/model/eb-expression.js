@@ -24,16 +24,16 @@ module.exports = function (angular) {
 					var key = keys[i],
 						watch = scope.expression.$watch[key];
 
-					watchFactory(scope.expression[key], watch);
+					watchFactory(scope.expression, key, watch);
 				}
 
 				var template = $templateCache.get(scope.expression.template);
 				var expression = $compile(template)(scope);
 				element.append(expression);
 
-				function watchFactory (watchExpression, handler) {
+				function watchFactory (context, key, handler) {
 					scope.$watch(function () {
-						return evaluate(watchExpression);
+						return evaluate(context[key]);
 					}, function (newVal, oldVal) {
 						handler.apply(scope.expression, [newVal, oldVal]);
 					}, true);

@@ -11,11 +11,11 @@ module.exports = function (angular) {
             restrict: 'A',
             link: function (scope, element, attr) {
                 var getter = $parse(attr.ebClass),
-                    classes = '',
-                    evaluate = evaluateFactory(null, [scope.node]);
+                    contextGetter = $parse(attr.ebClassContext),
+                    classes = '';
 
                 scope.$watch(function () {
-                    return evaluate(getter(scope));
+                    return evaluateFactory(contextGetter(scope), [scope.node])(getter(scope));
                 }, function (value) {
                     if(value) {
                         var oldClasses = classes;
