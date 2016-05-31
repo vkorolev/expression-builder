@@ -36,7 +36,8 @@ module.exports = function (angular) {
 
 							if (utility.isFunction(sourceFunction)) {
 								expression[key] = function () {
-									var result = sourceFunction();
+									var argList = utility.asArray(arguments);
+									var result = sourceFunction.apply(expression, argList);
 
 									// TODO add decorator for muttable methods instead of trigger
 									if (!line.immutable) {

@@ -65,7 +65,7 @@
             $templateCache.put('label', '<label ng-if="expression.isVisible()" ng-class="expression.classes">{{expression.text}}</label>');
             $templateCache.put('input', '<input ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.input($event);"/>');
             $templateCache.put('list',
-                    '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change()" ng-class="expression.classes">' +
+                    '<select ng-if="expression.isVisible()" ng-model="expression.value" ng-change="expression.change(\'hello\', \'world\')" ng-class="expression.classes">' +
                     '<option ng-repeat="option in expression.options" >{{option}}</option>' +
                     '</select>');
             $templateCache.put('button', '<button ng-if="expression.isVisible()" ng-click="expression.click($event)">{{expression.text}}</button>');
@@ -151,7 +151,9 @@
                                                 classes: [],
                                                 options: ['Field 1', 'Field 2', 'Field 3', 'placeholder'],
                                                 value: 'Field 1',
-                                                change: function (node, line) {
+                                                change: function (node, line, arg1, arg2) {
+                                                    console.log('ARG 1 ' + arg1);
+                                                    console.log('ARG 2 ' + arg2);
                                                     if (node.attr('placeholder')) {
                                                         node.addAfter(node.clone());
                                                     }

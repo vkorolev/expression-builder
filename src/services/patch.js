@@ -46,7 +46,8 @@ function withFactory(object, key, sourceFunction) {
         var args = utility.asArray(arguments);
 
         object[key] = function () {
-            return sourceFunction.apply(object, args);
+            var argList = utility.asArray(arguments);
+            return sourceFunction.apply(object, args.concat(argList));
         };
     };
 
