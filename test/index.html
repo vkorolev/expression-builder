@@ -139,7 +139,7 @@
                                             })
                                             .list('#field', {
                                                 $watch: {
-                                                    classList: function (newVal, oldVal) {
+                                                    classList: function (newVal, oldVal, node, line) {
                                                         this.classes = newVal;
                                                     }
                                                 },

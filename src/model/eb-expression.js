@@ -11,11 +11,12 @@ module.exports = function (angular) {
 			restrict: 'A',
 			scope: {
 				expression: '=ebExpression',
-				node: '='
+				node: '=',
+				line: '='
 			},
 			link: function (scope, element, attr) {
 				var $watch = scope.expression.$watch = scope.expression.$watch || {};
-				var evaluate = evaluateFactory(scope.expression, [scope.node]);
+				var evaluate = evaluateFactory(scope.expression, [scope.node, scope.line]);
 
 				var keys = Object.keys($watch),
 					length = keys.length;
@@ -35,7 +36,7 @@ module.exports = function (angular) {
 					scope.$watch(function () {
 						return evaluate(context[key]);
 					}, function (newVal, oldVal) {
-						handler.apply(scope.expression, [newVal, oldVal]);
+						handler.apply(scope.expression, [newVal, oldVal, scope.node, scope.line]);
 					}, true);
 				}
 			}
