@@ -6,7 +6,9 @@ module.exports = {
     isArray: Array.isArray,
     isFunction: isFunction,
     isObject: isObject,
-    override: override
+    override: override,
+    identity: identity
+    
 };
 
 function indexOf(array, predicate) {
@@ -76,4 +78,14 @@ function override(dst, src) {
     }
 
     return dst;
+}
+
+function identity() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
 }

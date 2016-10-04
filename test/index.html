@@ -107,13 +107,13 @@
                                     promise: {},
                                     value: 'AND'
                                 })
-                                .button('#add-logical-group', {
+                                .button({
                                     text: 'Add',
                                     click: function (node, line) {
                                         node.addChildBefore(node.clone());
                                     }
                                 })
-                                .button('#remove-logical-group', {
+                                .button({
                                     text: 'Remove',
                                     isVisible: function (node, line) {
                                         return node.level > 1;
@@ -179,7 +179,7 @@
                                                         case 'BETWEEN':
                                                             line.put('#operand', node, function (group) {
                                                                 group.input('#from', {})
-                                                                        .label('#andLabel', {
+                                                                        .label({
                                                                             text: 'AND'
                                                                         })
                                                                         .input('#to', {value: ''});
@@ -191,7 +191,7 @@
                                                 }
                                             })
                                             .group('#operand', angular.noop)
-                                            .button('#remove', {
+                                            .button({
                                                 text: 'Remove',
                                                 isVisible: function (node, line) {
                                                     return !node.attr('placeholder');
@@ -216,7 +216,7 @@
             }, function (v1, v2) {
                 if (v1 !== v2) {
                     $scope.model.serialized = serializer.serialize($scope.model.node);
-//                    $scope.model.deserialized = serializer.deserialize(schema, $scope.model.serialized);
+                    $scope.model.deserialized = serializer.deserialize(schema, $scope.model.serialized);
                 }
             }, true);
         }]);

@@ -14,8 +14,15 @@ module.exports = function (angular) {
 			var NodeSchema = nodeSchemaFactoryT(GroupSchema);
 
 			expressions.forEach(function (settings) {
-				var factory = function (id, parameters) {
-
+				var factory = function () {
+					var id = utility.identity(), parameters = {};
+					if (arguments.length > 1) {
+						id = arguments[0];
+						parameters = arguments[1];
+					} else if (arguments.length == 1) {
+						parameters = arguments[0];
+					}
+					
 					var build = function (node, line) {
 						var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
 						expression.id = id;
@@ -62,7 +69,14 @@ module.exports = function (angular) {
 					return this;
 				};
 
-				var groupFactory = function (id, parameters) {
+				var groupFactory = function () {
+					var id = utility.identity(), parameters = {};
+					if (arguments.length > 1) {
+						id = arguments[0];
+						parameters = arguments[1];
+					} else if (arguments.length == 1) {
+						parameters = arguments[0];
+					}
 
 					var build = function (node, line, expressionGroup) {
 						var expression = utility.defaults(parameters, settings.defaults, globalSettings.defaults);
@@ -80,9 +94,9 @@ module.exports = function (angular) {
 
 					return this;
 				};
-
+				
 				NodeSchema.prototype[settings.type] = factory;
-				GroupSchema.prototype[settings.type] = groupFactory;
+				GroupSchema.prototype[settings.type] = groupFactory;			
 			});
 
 			return new NodeSchema();
