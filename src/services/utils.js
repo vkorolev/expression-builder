@@ -8,7 +8,6 @@ module.exports = {
     isObject: isObject,
     override: override,
     identity: identity
-    
 };
 
 function indexOf(array, predicate) {
