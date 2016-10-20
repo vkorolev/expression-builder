@@ -2,7 +2,8 @@ var nodeSchemaFactoryT = require('./node-schema'),
 	 groupSchemaFactoryT = require('./group-schema'),
 	 patch = require('../services/patch'),
 	 utility = require('../services/utils'),
-	 ExpressionGroup = require('../model/expression-group');
+	 ExpressionGroup = require('../model/expression-group'),
+	 EmptyExpression = require('../model/empty');
 
 module.exports = function (angular) {
 	angular.module('expression-builder').factory('ExpressionBuilder', Factory);
@@ -13,7 +14,7 @@ module.exports = function (angular) {
 			var GroupSchema = groupSchemaFactoryT();
 			var NodeSchema = nodeSchemaFactoryT(GroupSchema);
 
-			expressions.forEach(function (settings) {
+			expressions.concat([EmptyExpression]).forEach(function (settings) {
 				var factory = function () {
 					var id = utility.identity(), parameters = {};
 					if (arguments.length > 1) {
