@@ -173,7 +173,7 @@
                                                     switch (this.value) {
                                                         case 'EQUALS':
                                                             line.put('#operand', node, function (group) {
-                                                                group.input('#equals', {value: ''});
+                                                                group.input('#equals', {value: ''}).group('#fakeGroup', angular.noop);
                                                             });
                                                             break;
                                                         case 'BETWEEN':
