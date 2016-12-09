@@ -22,11 +22,127 @@ anuglar.module('some-module-name', ['expression-builder',...])
 ###Schema
 Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
-* Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
-* Line API gives access to the user defined controls for a given node context.
+Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
 ```javascript
-
+/**
+  * Declare new node model. 
+  * In UI node will be presented as a new hierarchical element.
+  * @param {id} uniq identifier for the node.
+  * @param {build} function that populate schema/node argument.
+  * @returns NodeSchema instance.
+  */
+function node(id, build);
+schema.node('#logical-group', function (schema) {
+    schema.attr('placeholder', true)
+          .list('#logical-op-list', {
+            options: ['AND', 'OR'],
+            value: 'AND'
+        })});
+/**
+  * Declare group of expressions.
+  * This primitive allows to operate with group of expressions, 
+  * also it allows to dynamicly change content of the group
+  * @param {id} uniq identifier for the group.
+  * @param {build} function that populate schema/node argument.
+  * @returns NodeSchema instance.
+  */
+function group(id, build);
+schema.group('#operand', angular.noop)
+      .list('#operator', {
+          options: ['BETWEEN', 'EQUALS'],
+          change: function (node, line) {
+             switch (this.value) {
+                case 'EQUALS':
+                    line.put('#operand', node, function (group) {
+                        group.input('#equals', {value: ''});
+                    });
+                break;
+                case 'BETWEEN':
+                    line.put('#operand', node, function (group) {
+                        group.input('#from', {})
+                             .label({text: 'AND'})
+                             .input('#to', {value: ''});
+                        });
+                        break;
+                    }
+               }
+        });
+/**
+  * Attributes - node level properties.
+  * Attributes are accessable in all expressions throught the node.attr function, also
+  * there are 2 system attributes
+  * 'class' - defines css classes for the node
+  * 'serialize' - defines wat properties should be serialized (id: [values from id expressions/attributes])
+  * @param {key} name of the attribute.
+  * @param {value} any.
+  * @returns NodeSchema instance.
+ */
+function attr(key, value);
+schema.attr('placeholder', true)
+      .attr('serialize', {
+           '#field': ['value'],
+           '#operator': ['value'],
+           '#value': ['value'],
+           '@attr': ['placeholder']
+      })
+      .attr('class', {
+           'condition-group': true,
+           'placeholder': function (node) {
+               return node.attr('placeholder');
+           }
+       });
+/**
+  * Inlined user defined expressions (e.g. button, list, input)
+  * @param {id} uniq identifier of the attribute.
+  * @param {settings} any property of this object is accessable from user defined template through expression property
+  * @returns NodeSchema instance.
+ */
+function <expression_type>(id, settings);
+schema.autocomplete('#from', {
+  $watch: {
+    'value': function (newValue, oldValue, node, line) {
+    }
+  },
+  classes: {
+    'invalid': function (node) {
+      return !this.isValid(node);
+    },
+    'has-value': function () {
+      return !!this.value;
+    }
+  },
+  isValid: function (node, line) {
+    return node.attr('placeholder') ||
+      (!this.state || !this.state.length);
+  },
+  options: [],
+  value: null,
+  change: function(){
+  };
+  placeholderText: 'Select value'
+});
 ```
+```html
+<span ng-if="expression.isVisible()">
+    <autocomplete class="condition-builder-autocomplete"
+                  eb-class="expression.classes"
+                  eb-class-context="expression"
+                  items="item in expression.options()"
+                  selected-item="expression.value"
+                  selected-item-change="expression.change()"
+                  placeholder="{{expression.placeholderText}}"
+                  title="{{expression.value}}">
+    </autocomplete>
+```
+```javascript
+/**
+  * Create a node model from schema
+  * @returns running node model that can be bind to UI
+ */
+function apply();
+```
+Line API gives access to the user defined controls for a given node context.
+
 ###ExpressionBuilder service
 Use **ExpressionBuilder** servcie to create entry point for markup building. 
 Usually instantiation is incapsulated by some special factory.
@@ -114,9 +230,10 @@ We use phantomjs and jasmine to ensure quality of the code.
 The easiest way to run these asserts is to use npm command for the project.  
 `npm test`
 ##How it works
-* Expression exposure
-* Line patching - provide access
-* Context propogation
+* Expression exposure - user defined expressions/templates
+* Schema patching - provide access for the user defined expressions
+* Line patching - provide bindings for the user defined templates
+* Context propogation - comunication in a line and between nodes
 * Schema application - build a running model that can be bind to UI
 
 `expression builder` core principles:
