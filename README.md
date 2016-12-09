@@ -19,11 +19,61 @@ Don't forget to include expression-builder module!
 ```javascript
 anuglar.module('some-module-name', ['expression-builder',...])
 ```
+###ExpressionBuilder service
+Use **ExpressionBuilder** servcie to create entry point for markup building. Further settings that you pass to expression builder will be accessable in the `schema` - the core component of this framework.Usually instantiation is incapsulated by some special factory.
+```javascript
+/**
+  * ExpressionBuilder/schema constructor.   
+  * @param {expressions} list of pairs(type, template) that will be available as controls on markup creation.
+  * @param {globalSettings} global settings that will be available on markup creation.
+  * @returns ExpressionBuilder instance that we call 'schema' by convention.
+  */
+constructor ExpressionBuilder(expressions, globalSettings)
+```
+Example of creating ExpressionBuilder instance.
+```javascript
+ConditionBuilderFactory.$inject = ['ExpressionBuilder'];
+function ConditionBuilderFactory(ExpressionBuilder) {
+    return function ConditionBuilder() {
+        var builder = new ExpressionBuilder([
+        {
+          type: 'label',
+          templateUrl: 'condition.builder.label.html'
+        },
+        {
+          type: 'input',
+          templateUrl: 'condition.builder.input.html'
+        },
+        {
+          type: 'select',
+          templateUrl: 'condition.builder.select.html',
+          defaults: {
+            trackBy: function (node, line, value) {
+              return value;
+            }
+          }
+        },
+        {
+          type: 'button',
+          templateUrl: 'condition.builder.button.html'
+        }
+      ], {
+        // default settings that will be applied if they are missed in user definitions
+        defaults: { 
+          isVisible: function () {
+            return true;
+          }
+        }
+      });
+      return builder;
+    }
+}
+```
 ###Schema
 Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
 
-##Node API
+###Node API
 Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
 **node**
 ```javascript
@@ -177,60 +227,27 @@ schema.autocomplete('#value', {
   }
 });
 ```
-##Line API
+###Line API
 Line API gives access to the user defined controls for a given node context.
-
-
-###ExpressionBuilder service
-Use **ExpressionBuilder** servcie to create entry point for markup building. 
-Usually instantiation is incapsulated by some special factory.
+**add**
 ```javascript
-/**
-  * ExpressionBuilder/schema constructor.   
-  * @param {expressions} list of pairs(type, template) that will be available as controls on markup creation.
-  * @param {globalSettings} global settings that will be available on markup creation.
-  * @returns ExpressionBuilder instance that we call 'schema' by convention.
-  */
-constructor ExpressionBuilder(expressions, globalSettings)
+function add(expression);
 ```
-Example of creating ExpressionBuilder instance.
+**clone**
 ```javascript
-ConditionBuilderFactory.$inject = ['ExpressionBuilder'];
-function ConditionBuilderFactory(ExpressionBuilder) {
-    return function ConditionBuilder() {
-        var builder = new ExpressionBuilder([
-        {
-          type: 'label',
-          templateUrl: 'condition.builder.label.html'
-        },
-        {
-          type: 'input',
-          templateUrl: 'condition.builder.input.html'
-        },
-        {
-          type: 'select',
-          templateUrl: 'condition.builder.select.html',
-          defaults: {
-            trackBy: function (node, line, value) {
-              return value;
-            }
-          }
-        },
-        {
-          type: 'button',
-          templateUrl: 'condition.builder.button.html'
-        }
-      ], {
-        // default settings that will be applied if they are missed in user definitions
-        defaults: { 
-          isVisible: function () {
-            return true;
-          }
-        }
-      });
-      return builder;
-    }
-}
+function clone(id);
+```
+**get**
+```javascript
+function get(id);
+```
+**put**
+```javascript
+function put(id, node, build);
+```
+**remove**
+```javascript
+function remove(id);
 ```
 ###Serialization
 End user works with declarative syntax that allows to have serialization/deserialization out of the box.
