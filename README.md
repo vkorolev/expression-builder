@@ -1,20 +1,16 @@
 #expression-builder 1.0 + angularjs
-Simple extensible framework for compact markup building with fluent interface
+Simple extensible framework for compact markup building with fluent interface.
 
 `Expression builder` tries to encapsulate the most of logic that can be happen while building complex tree based
-UI. It tries to collect imperative instructrion under the declarative containers. Tries to be pretty, but extensible, powerfull, but not sophisticated.
-We believe that expression builder can dramatically help to connect UI and hierarchical structures.
-On the first step you say what elements you want to use in yours UI(buttons, lists etc.)
-On the second step you tell about instuctions that should be applied in your UI(add button and list, add element, remove element etc.)
-On the third step you just bind your instructions to UI, thats it!
+UI. It tries to collect imperative instructrion under the declarative containers. Tries to be pretty, but extensible, powerfull, but not sophisticated.We believe that expression builder can dramatically help to connect UI and hierarchical structures.On the first step you say what elements you want to use in yours UI(buttons, lists etc.)
+On the second step you tell about instuctions that should be applied in your UI(add button and list, add element, remove element etc.). On the third step you just bind your instructions to UI, thats it!
+
+##How it can look like
+![alt tag](https://github.com/vkorolev/expression-builder/blob/master/assets/example.png?raw=true)
 ##Licence
 Code licensed under MIT license.
 ##Examples
 https://github.com/vkorolev/expression-builder/blob/master/test/index.html
-##Licence
-Code licensed under MIT license.
-## Examples
-https://vkorolev.github.io/expression-builder
 ##Installing via Bower
 `bower install expression-builder`
 ## Get Started
@@ -71,7 +67,7 @@ function ConditionBuilderFactory(ExpressionBuilder) {
           templateUrl: 'condition.builder.button.html'
         }
       ], {
-        // default settings that will be applied if they are missed in user defined settings
+        // default settings that will be applied if they are missed in user definitions
         defaults: { 
           isVisible: function () {
             return true;
@@ -83,7 +79,7 @@ function ConditionBuilderFactory(ExpressionBuilder) {
 }
 ```
 ###Serialization
-End user works with declarative syntax that allows to make serialization/deserialization out of the box.
+End user works with declarative syntax that allows to have serialization/deserialization out of the box.
 You just need to use `expressionBuilderSerializer` service.
 ```javascript
 /**
@@ -118,9 +114,15 @@ We use phantomjs and jasmine to ensure quality of the code.
 The easiest way to run these asserts is to use npm command for the project.  
 `npm test`
 ##How it works
+* Expression exposure
+* Line patching - provide access
+* Context propogation
+* Schema application - build a running model that can be bind to UI
+
 `expression builder` core principles:
 * Powerfull but not complicated
 * Extensible but gentle
 * Declarative under imperative preassure
+
 ## Angular Compatibility
 Expression builder was tested with anuglar 1.3+.
