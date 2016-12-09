@@ -74,7 +74,8 @@ Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
 
 ###Node API
-Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
+Node API populates operations to manipulate with hierarchy structure of markup.
+
 **node**
 ```javascript
 /**
@@ -231,23 +232,41 @@ schema.autocomplete('#value', {
 Line API gives access to the user defined controls for a given node context.
 **add**
 ```javascript
+/** Add expression to the line
+  * @param {expression} expression to add
+ */
 function add(expression);
 ```
 **clone**
 ```javascript
+/** Clone expression with appropriate id.
+  * @param {id} identifier of expression to clone.
+  * @returns copy of expression.
+ */
 function clone(id);
 ```
 **get**
 ```javascript
+/** Find and return expression in the line.
+  * @param {expression}  identifier of expression to find.
+  * @returns expression.
+ */
 function get(id);
 ```
 **put**
 ```javascript
+/** Replace group with appropriate id with build output.
+  * @param {id} identifier of the group.
+  * @param {node} node instance.
+  * @param {build} function that populate schema/node argument.
+ */
 function put(id, node, build);
 ```
 **remove**
 ```javascript
-function remove(id);
+/** Remove expression from the line with appropriate id.
+  * @param {expression}  identifier of expression to find.
+ */function remove(id);
 ```
 ###Serialization
 End user works with declarative syntax that allows to have serialization/deserialization out of the box.
@@ -258,13 +277,13 @@ You just need to use `expressionBuilderSerializer` service.
   * @param {node} schema node instance.
   * @returns serialized json model of schema node state.
  */
-function serialize(node)
+function serialize(node);
 /**
   * Function to get node from serialized model.   
   * @param {schema} to what deserialized behaviours will be applied.
   * @returns node model that can be binded to eb-node directive.
  */
-function deserialize(schema, data)
+function deserialize(schema, data);
 ```
 Example.
 ```javascript
