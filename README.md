@@ -22,8 +22,9 @@ anuglar.module('some-module-name', ['expression-builder',...])
 ###Schema
 Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
-Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
 
+##Node API
+Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
 **node**
 ```javascript
 /**
@@ -72,6 +73,9 @@ schema.group('#operand', angular.noop)
                     }
                }
         });
+```
+ **attributes**
+```javascript
 /**
   * Attributes - node level properties.
   * Attributes are accessable in all expressions throught the node.attr function, also
@@ -82,9 +86,6 @@ schema.group('#operand', angular.noop)
   * @param {value} any.
   * @returns NodeSchema instance.
  */
- ```
- **attributes**
-```javascript
 function attr(key, value);
 schema.attr('placeholder', true)
       .attr('serialize', {
@@ -154,7 +155,31 @@ schema.autocomplete('#from', {
  */
 function apply();
 ```
+**in-expression**
+```javascript
+function attr(key, value);
+function addChildAfter(child, after);
+function addChildBefore(child, before);
+function addAfter(child);
+function addBefore(child);
+function clone();
+function remove();
+function clear();
+function toString();
+function toTraceString();
+
+schema.autocomplete('#value', {
+    change: function (node, line, other) {
+    if (node.attr('placeholder')) {
+      node.addAfter(node.clone());
+        node.attr('placeholder', false);
+    }
+  }
+});
+```
+##Line API
 Line API gives access to the user defined controls for a given node context.
+
 
 ###ExpressionBuilder service
 Use **ExpressionBuilder** servcie to create entry point for markup building. 
