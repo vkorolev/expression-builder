@@ -23,6 +23,8 @@ anuglar.module('some-module-name', ['expression-builder',...])
 Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
 Node API populates create/copy/remove operations to manipulate with hierarchy structure of markup.
+
+**node**
 ```javascript
 /**
   * Declare new node model. 
@@ -38,6 +40,9 @@ schema.node('#logical-group', function (schema) {
             options: ['AND', 'OR'],
             value: 'AND'
         })});
+```
+**groups** 
+```javascript        
 /**
   * Declare group of expressions.
   * This primitive allows to operate with group of expressions, 
@@ -77,6 +82,9 @@ schema.group('#operand', angular.noop)
   * @param {value} any.
   * @returns NodeSchema instance.
  */
+ ```
+ **attributes**
+```javascript
 function attr(key, value);
 schema.attr('placeholder', true)
       .attr('serialize', {
@@ -91,10 +99,14 @@ schema.attr('placeholder', true)
                return node.attr('placeholder');
            }
        });
+```
+**expressions/controls**
+```javascript
 /**
   * Inlined user defined expressions (e.g. button, list, input)
   * @param {id} uniq identifier of the attribute.
-  * @param {settings} any property of this object is accessable from user defined template through expression property
+  * @param {settings} any property of this object is accessable 
+                      from user defined template through expression property
   * @returns NodeSchema instance.
  */
 function <expression_type>(id, settings);
@@ -134,6 +146,7 @@ schema.autocomplete('#from', {
                   title="{{expression.value}}">
     </autocomplete>
 ```
+**apply**
 ```javascript
 /**
   * Create a node model from schema
