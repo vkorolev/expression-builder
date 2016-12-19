@@ -333,6 +333,20 @@ module.exports = function (GroupSchema, undefined) {
         return this;
     };
 
+    NodeSchema.prototype.get = function(id){
+        var schema = this.schemaMap[id];
+        if(!schema){
+            throw new Error('Schema ' + id + ' is not found');
+        }
+
+        return schema;
+    };
+
+    NodeSchema.prototype.materialize = function(id) {
+        var schema = this.get(id);
+        return this.apply(new Node(id, this));
+    };
+
     return NodeSchema;
 };
 },{"../model/expression-group":11,"./line":4,"./node":6}],6:[function(require,module,exports){
