@@ -1,11 +1,19 @@
 <ul class="expression-builder-node" eb-class="node.attr('class')">
-    <li ng-repeat="expression in node.line.expressions"
-        eb-expression="expression"
-        node="node"
-        line="node.line"
-        class="expression-builder-expression">
+    <li class="expression-builder-line">
+        <ul>
+            <li ng-repeat="expression in node.line.expressions"
+                eb-expression="expression"
+                node="node"
+                line="node.line"
+                class="expression-builder-expression">
+            </li>
+        </ul>
     </li>
+    
 
-    <li ng-repeat="child in node.children" eb-node="child" class="expression-builder-child">
+    <li class="expression-builder-children">
+        <ul>
+            <li ng-repeat="child in node.children" eb-node="child" class="expression-builder-child"></li>
+        </ul>
     </li>
 </ul>

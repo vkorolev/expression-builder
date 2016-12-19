@@ -5,12 +5,10 @@ module.exports = SerializationService;
 function SerializationService(node) {
     function serialize() {
         var groups = node.line.expressions.map(serializeGroup);
-        var attrs = utility.clone(node.attributes);
-        delete attrs.serialize;
 
         return {
             id: node.id,
-            attributes: attrs,
+            attributes: serializeAttributes(node),
             children: node.children.map(function (child) {
                 return new SerializationService(child).serialize();
             }),
@@ -19,6 +17,18 @@ function SerializationService(node) {
             })
         }
     }
+
+    function serializeAttributes(node) {
+    	var serialize = node.attr('serialize');
+		if (serialize && serialize['@attr']) {
+			var attrs = serialize['@attr'];
+			return attrs.reduce(function (memo, attr) {
+				memo[attr] = node.attr(attr);
+				return memo;
+			}, {})
+		}
+		return {};
+	}
 
     function serializeGroup(group) {
         return {
