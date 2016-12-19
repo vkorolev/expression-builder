@@ -344,7 +344,7 @@ module.exports = function (GroupSchema, undefined) {
 
     NodeSchema.prototype.materialize = function(id) {
         var schema = this.get(id);
-        return this.apply(new Node(id, this));
+        return schema.apply(new Node(id, schema));
     };
 
     return NodeSchema;
