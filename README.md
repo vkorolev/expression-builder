@@ -198,6 +198,15 @@ schema.autocomplete('#from', {
                   title="{{expression.value}}">
     </autocomplete>
 ```
+**get**
+```javascript
+/**
+  * Searchs for the node schema with particular id, if not found throws Exception
+  * @param {id} id of desired node schema
+  * @returns running node model
+ */
+function get(id);
+```
 **apply**
 ```javascript
 /**
@@ -205,6 +214,15 @@ schema.autocomplete('#from', {
   * @returns running node model that can be bind to UI
  */
 function apply();
+```
+**materialize**
+```javascript
+/**
+  * Search for a node schema and create a node model with desired id
+  * @param {id} id of desired node schema
+  * @returns running node model
+ */
+function materialize(id);
 ```
 **in-expression**
 ```javascript
