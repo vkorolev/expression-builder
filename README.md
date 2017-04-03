@@ -1,17 +1,17 @@
-#expression-builder 1.0 + angularjs
+# expression-builder 1.0 + angularjs
 Simple extensible framework for compact markup building with fluent interface.
 
 `Expression builder` tries to encapsulate the most of logic that can be happen while building complex tree based
 UI. It tries to collect imperative instructrion under the declarative containers. Tries to be pretty, but extensible, powerfull, but not sophisticated.We believe that expression builder can dramatically help to connect UI and hierarchical structures.On the first step you say what elements you want to use in yours UI(buttons, lists etc.)
 On the second step you tell about instuctions that should be applied in your UI(add button and list, add element, remove element etc.). On the third step you just bind your instructions to UI, thats it!
 
-##How it can look like
+## How it can look like
 ![alt tag](https://github.com/vkorolev/expression-builder/blob/master/assets/example.png?raw=true)
-##Licence
+## Licence
 Code licensed under MIT license.
-##Examples
+## Examples
 https://github.com/vkorolev/expression-builder/blob/master/test/index.html
-##Installing via Bower
+## Installing via Bower
 `bower install expression-builder`
 ## Get Started
 ###Module
@@ -19,7 +19,7 @@ Don't forget to include expression-builder module!
 ```javascript
 anuglar.module('some-module-name', ['expression-builder',...])
 ```
-###ExpressionBuilder service
+### ExpressionBuilder service
 Use **ExpressionBuilder** servcie to create entry point for markup building. Further settings that you pass to expression builder will be accessable in the `schema` - the core component of this framework.Usually instantiation is incapsulated by some special factory.
 ```javascript
 /**
@@ -69,11 +69,11 @@ function ConditionBuilderFactory(ExpressionBuilder) {
     }
 }
 ```
-###Schema
+### Schema
 Schema is key interface to create markup with help of ExpressionBuilder.
 There are two main concepts: node and line. 
 
-###Node API
+### Node API
 Node API populates operations to manipulate with hierarchy structure of markup.
 
 **node**
@@ -246,7 +246,7 @@ schema.autocomplete('#value', {
   }
 });
 ```
-###Line API
+### Line API
 Line API gives access to the user defined controls for a given node context.
 **add**
 ```javascript
@@ -286,7 +286,7 @@ function put(id, node, build);
   * @param {expression}  identifier of expression to find.
  */function remove(id);
 ```
-###Serialization
+### Serialization
 End user works with declarative syntax that allows to have serialization/deserialization out of the box.
 You just need to use `expressionBuilderSerializer` service.
 ```javascript
@@ -308,7 +308,7 @@ Example.
 var data = serializer.serialize(model);
 var model = serializer.deserialize(schema, data);
 ```
-###HTML markup
+### HTML markup
 * Add **eb-node** directive to an element where you want to have expression in your markup.
 * Bind **eb-node** to expression builder model.
 ```html
@@ -317,11 +317,11 @@ var model = serializer.deserialize(schema, data);
 ## Development
 To setup development environment make sure that npm is installed on your machine, after that just execute npm command for the project.  
 `npm install`
-##Testing
+## Testing
 We use phantomjs and jasmine to ensure quality of the code.
 The easiest way to run these asserts is to use npm command for the project.  
 `npm test`
-##How it works
+## How it works
 * Expression exposure - user defined expressions/templates
 * Schema patching - provide access for the user defined expressions
 * Line patching - provide bindings for the user defined templates
